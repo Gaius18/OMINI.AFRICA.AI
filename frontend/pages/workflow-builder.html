@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur de Workflows - OMNI.AFRICA.AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link rel="icon" type="image/png" href="../assets/favicon.svg">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OMNI.AFRICA.AI Theme -->
+    <link rel="stylesheet" href="../assets/css/omni-theme.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Override avec les couleurs OMNI.AFRICA.AI */
+        :root {
+            --primary-color: var(--africa-purple);
+            --secondary-color: var(--africa-orange);
+            --success-color: var(--africa-green);
+            --warning-color: var(--africa-yellow);
+            --danger-color: var(--africa-red);
+            --info-color: var(--africa-blue);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+            color: var(--primary-color);
+        }
+
+        .workflow-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .node-category {
+            margin-bottom: 1.5rem;
+        }
+
+        .node-category-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .node-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .node-item:hover {
+            background: #f3f4f6;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .node-item:active {
+            cursor: grabbing;
+        }
+
+        .node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .node-icon.ai { background: var(--primary-color); }
+        .node-icon.data { background: var(--info-color); }
+        .node-icon.logic { background: var(--warning-color); }
+        .node-icon.output { background: var(--success-color); }
+
+        /* Canvas */
+        .canvas-container {
+            flex: 1;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        .workflow-node {
+            position: absolute;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 200px;
+            box-shadow: var(--shadow-md);
+            cursor: move;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .workflow-node:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .workflow-node.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .node-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .node-type {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .node-content {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .node-ports {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: crosshair;
+        }
+
+        .node-port-input {
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .node-port-output {
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            background: var(--primary-color);
+            height: 2px;
+            transform-origin: left center;
+            z-index: 5;
+        }
+
+        .connection-line::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid var(--primary-color);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 300px;
+            background: white;
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .properties-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .property-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .property-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .property-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .property-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .property-select {
+            background: white;
+        }
+
+        /* Minimap */
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .minimap-viewport {
+            position: absolute;
+            border: 2px solid var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+            cursor: move;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .zoom-btn:hover {
+            background: #f9fafb;
+            border-color: var(--primary-color);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.info {
+            background: var(--info-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar,
+            .properties-panel {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar,
+            .properties-panel {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .canvas-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="workflow-title">OMNI.AFRICA.AI - Éditeur de Workflows</h1>
+        </div>
+        
+        <div class="header-right">
+            <button class="btn btn-outline" onclick="saveWorkflow()">
+                <i class="fas fa-save"></i>
+                Sauvegarder
+            </button>
+            <button class="btn btn-outline" onclick="testWorkflow()">
+                <i class="fas fa-play"></i>
+                Tester
+            </button>
+            <button class="btn btn-success" onclick="deployWorkflow()">
+                <i class="fas fa-rocket"></i>
+                Déployer
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Nœuds IA</h3>
+                <div class="node-category">
+                    <div class="node-category-title">Génération</div>
+                    <div class="node-item" draggable="true" data-type="ai-generate">
+                        <div class="node-icon ai">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span>Génération de Texte</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="ai-analyze">
+                        <div class="node-icon ai">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span>Analyse Sentiment</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="ai-translate">
+                        <div class="node-icon ai">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <span>Traduction</span>
+                    </div>
+                </div>
+
+                <div class="node-category">
+                    <div class="node-category-title">Données</div>
+                    <div class="node-item" draggable="true" data-type="data-input">
+                        <div class="node-icon data">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <span>Entrée de Données</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="data-filter">
+                        <div class="node-icon data">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <span>Filtre</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="data-transform">
+                        <div class="node-icon data">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <span>Transformation</span>
+                    </div>
+                </div>
+
+                <div class="node-category">
+                    <div class="node-category-title">Logique</div>
+                    <div class="node-item" draggable="true" data-type="logic-condition">
+                        <div class="node-icon logic">
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                        <span>Condition</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="logic-loop">
+                        <div class="node-icon logic">
+                            <i class="fas fa-redo"></i>
+                        </div>
+                        <span>Boucle</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="logic-delay">
+                        <div class="node-icon logic">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <span>Délai</span>
+                    </div>
+                </div>
+
+                <div class="node-category">
+                    <div class="node-category-title">Sortie</div>
+                    <div class="node-item" draggable="true" data-type="output-email">
+                        <div class="node-icon output">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <span>Email</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="output-webhook">
+                        <div class="node-icon output">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <span>Webhook</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="output-database">
+                        <div class="node-icon output">
+                            <i class="fas fa-save"></i>
+                        </div>
+                        <span>Base de Données</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <div class="canvas" id="canvas">
+                <!-- Les nœuds seront ajoutés ici dynamiquement -->
+            </div>
+
+            <!-- Minimap -->
+            <div class="minimap" id="minimap">
+                <div class="minimap-viewport" id="minimapViewport"></div>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomIn()">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" onclick="zoomOut()">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="zoom-btn" onclick="resetZoom()">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Properties Panel -->
+        <div class="properties-panel" id="propertiesPanel">
+            <h3 class="properties-title">Propriétés</h3>
+            <div id="propertiesContent">
+                <p style="color: var(--text-secondary);">Sélectionnez un nœud pour voir ses propriétés</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications"></div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBCrGYX3GUH8CZaMqfmYSSvZZ2s3TEaK9c",
+            authDomain: "optimiz-africa.firebaseapp.com",
+            projectId: "optimiz-africa",
+            storageBucket: "optimiz-africa.firebasestorage.app",
+            messagingSenderId: "1098044012759",
+            appId: "1:1098044012759:web:87122767cd2f1751dcd892"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Variables globales
+        let nodes = [];
+        let connections = [];
+        let selectedNode = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let canvasScale = 1;
+        let canvasOffset = { x: 0, y: 0 };
+
+        // Éléments DOM
+        const canvas = document.getElementById('canvas');
+        const propertiesPanel = document.getElementById('propertiesPanel');
+        const propertiesContent = document.getElementById('propertiesContent');
+
+        // Initialiser l'éditeur
+        function initWorkflowEditor() {
+            setupDragAndDrop();
+            setupCanvasEvents();
+            loadSampleWorkflow();
+        }
+
+        // Configuration du drag & drop
+        function setupDragAndDrop() {
+            const nodeItems = document.querySelectorAll('.node-item');
+            
+            nodeItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.dataset.type);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+
+            canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+
+            canvas.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const nodeType = e.dataTransfer.getData('text/plain');
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left - canvasOffset.x) / canvasScale;
+                const y = (e.clientY - rect.top - canvasOffset.y) / canvasScale;
+                
+                createNode(nodeType, x, y);
+            });
+        }
+
+        // Configuration des événements du canvas
+        function setupCanvasEvents() {
+            canvas.addEventListener('mousedown', handleCanvasMouseDown);
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('mouseup', handleCanvasMouseUp);
+            canvas.addEventListener('click', handleCanvasClick);
+        }
+
+        // Créer un nouveau nœud
+        function createNode(type, x, y) {
+            const nodeId = 'node_' + Date.now();
+            const nodeData = getNodeData(type);
+            
+            const node = {
+                id: nodeId,
+                type: type,
+                x: x,
+                y: y,
+                data: nodeData
+            };
+
+            nodes.push(node);
+            renderNode(node);
+            showNotification(`Nœud ${nodeData.title} créé`, 'success');
+        }
+
+        // Obtenir les données d'un type de nœud
+        function getNodeData(type) {
+            const nodeTypes = {
+                'ai-generate': {
+                    title: 'Génération de Texte',
+                    icon: 'fas fa-brain',
+                    color: '#667eea',
+                    properties: {
+                        model: 'gemini-pro',
+                        temperature: 0.7,
+                        maxTokens: 1000,
+                        prompt: ''
+                    }
+                },
+                'ai-analyze': {
+                    title: 'Analyse Sentiment',
+                    icon: 'fas fa-chart-pie',
+                    color: '#10b981',
+                    properties: {
+                        language: 'fr',
+                        detailed: true
+                    }
+                },
+                'ai-translate': {
+                    title: 'Traduction',
+                    icon: 'fas fa-language',
+                    color: '#f59e0b',
+                    properties: {
+                        sourceLanguage: 'auto',
+                        targetLanguage: 'en'
+                    }
+                },
+                'data-input': {
+                    title: 'Entrée de Données',
+                    icon: 'fas fa-database',
+                    color: '#3b82f6',
+                    properties: {
+                        source: 'api',
+                        format: 'json'
+                    }
+                },
+                'data-filter': {
+                    title: 'Filtre',
+                    icon: 'fas fa-filter',
+                    color: '#8b5cf6',
+                    properties: {
+                        condition: '',
+                        operator: 'equals'
+                    }
+                },
+                'logic-condition': {
+                    title: 'Condition',
+                    icon: 'fas fa-code-branch',
+                    color: '#ef4444',
+                    properties: {
+                        condition: '',
+                        operator: 'if'
+                    }
+                },
+                'output-email': {
+                    title: 'Email',
+                    icon: 'fas fa-envelope',
+                    color: '#059669',
+                    properties: {
+                        to: '',
+                        subject: '',
+                        template: ''
+                    }
+                }
+            };
+
+            return nodeTypes[type] || {
+                title: 'Nœud Inconnu',
+                icon: 'fas fa-question',
+                color: '#6b7280',
+                properties: {}
+            };
+        }
+
+        // Rendre un nœud
+        function renderNode(node) {
+            const nodeElement = document.createElement('div');
+            nodeElement.className = 'workflow-node';
+            nodeElement.id = node.id;
+            nodeElement.style.left = node.x + 'px';
+            nodeElement.style.top = node.y + 'px';
+            nodeElement.style.borderColor = node.data.color;
+
+            nodeElement.innerHTML = `
+                <div class="node-header">
+                    <i class="${node.data.icon}" style="color: ${node.data.color}"></i>
+                    <span class="node-title">${node.data.title}</span>
+                    <span class="node-type">${node.type}</span>
+                </div>
+                <div class="node-content">
+                    ${getNodeDescription(node)}
+                </div>
+                <div class="node-ports node-port-input"></div>
+                <div class="node-ports node-port-output"></div>
+            `;
+
+            // Événements du nœud
+            nodeElement.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('workflow-node')) {
+                    selectNode(node);
+                    startNodeDrag(e, node);
+                }
+            });
+
+            nodeElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectNode(node);
+            });
+
+            canvas.appendChild(nodeElement);
+        }
+
+        // Obtenir la description d'un nœud
+        function getNodeDescription(node) {
+            const descriptions = {
+                'ai-generate': 'Génère du texte avec IA',
+                'ai-analyze': 'Analyse le sentiment du texte',
+                'ai-translate': 'Traduit le texte',
+                'data-input': 'Récupère des données',
+                'data-filter': 'Filtre les données',
+                'logic-condition': 'Exécute une condition',
+                'output-email': 'Envoie un email'
+            };
+
+            return descriptions[node.type] || 'Nœud de traitement';
+        }
+
+        // Sélectionner un nœud
+        function selectNode(node) {
+            // Désélectionner le nœud précédent
+            if (selectedNode) {
+                const prevElement = document.getElementById(selectedNode.id);
+                if (prevElement) {
+                    prevElement.classList.remove('selected');
+                }
+            }
+
+            selectedNode = node;
+            const nodeElement = document.getElementById(node.id);
+            if (nodeElement) {
+                nodeElement.classList.add('selected');
+            }
+
+            showNodeProperties(node);
+        }
+
+        // Afficher les propriétés d'un nœud
+        function showNodeProperties(node) {
+            const properties = node.data.properties;
+            
+            let propertiesHTML = `

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Principal - OMNI.AFRICA.AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OMNI.AFRICA.AI Theme -->
+    <link rel="stylesheet" href="../assets/css/omni-theme.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Variables CSS personnalisées */
+        :root {
+            --omni-primary: #FF6B35;
+            --omni-secondary: #9B59B6;
+            --omni-success: #27AE60;
+            --omni-warning: #F1C40F;
+            --omni-info: #3498DB;
+            --omni-dark: #2C3E50;
+            --omni-light: #ECF0F1;
+        }
+
+        /* Styles personnalisés */
+        .omni-gradient {
+            background: linear-gradient(135deg, var(--omni-primary) 0%, var(--omni-secondary) 50%, var(--omni-success) 100%);
+        }
+
+        .omni-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .omni-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .omni-floating {
+            animation: omniFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes omniFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+            75% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        .omni-pulse {
+            animation: omniPulse 2s infinite;
+        }
+
+        @keyframes omniPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+        }
+
+        .omni-context-menu {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .omni-module-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .omni-module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .omni-module-card:hover::before {
+            left: 100%;
+        }
+
+        .omni-module-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .omni-stats-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(155, 89, 182, 0.1) 50%, rgba(39, 174, 96, 0.1) 100%);
+            border-left: 4px solid var(--omni-primary);
+        }
+
+        .omni-quick-action {
+            transition: all 0.3s ease;
+        }
+
+        .omni-quick-action:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .omni-notification {
+            animation: omniNotification 0.5s ease-out;
+        }
+
+        @keyframes omniNotification {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .omni-loading {
+            display: inline-block;
+        }
+
+        .omni-loading::after {
+            content: '';
+            animation: omniDots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes omniDots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .omni-sidebar {
+            transition: all 0.3s ease;
+        }
+
+        .omni-sidebar.collapsed {
+            width: 70px;
+        }
+
+        .omni-sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+
+        .omni-main-content {
+            transition: all 0.3s ease;
+        }
+
+        .omni-main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .omni-breadcrumb {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(155, 89, 182, 0.1) 100%);
+        }
+
+        .omni-search-bar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .omni-user-menu {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-50 via-purple-50 to-green-50 font-['Inter'] min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="omni-sidebar fixed left-0 top-0 h-full bg-white shadow-xl z-40 w-64">
+        <!-- Logo OMNI.AFRICA.AI -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 omni-gradient rounded-lg flex items-center justify-center omni-floating">
+                    <i class="fas fa-globe-africa text-white text-xl"></i>
+                </div>
+                <div class="sidebar-text">
+                    <h1 class="text-xl font-bold text-gray-900">OMNI.AFRICA.AI</h1>
+                    <p class="text-sm text-gray-500">Solution IA Complète</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="p-4 space-y-2">
+            <a href="#" onclick="showModule('dashboard')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+                <i class="fas fa-tachometer-alt text-lg"></i>
+                <span class="sidebar-text font-medium">Dashboard</span>
+            </a>
+
+            <a href="#" onclick="showModule('agriculture')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all">
+                <i class="fas fa-seedling text-lg"></i>
+                <span class="sidebar-text font-medium">Agriculture IA</span>
+            </a>
+
+            <a href="#" onclick="showModule('agi-elp')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all">
+                <i class="fas fa-brain text-lg"></i>
+                <span class="sidebar-text font-medium">AGI_ELP</span>
+            </a>
+
+            <a href="#" onclick="showModule('workflows')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                <i class="fas fa-project-diagram text-lg"></i>
+                <span class="sidebar-text font-medium">Workflows</span>
+            </a>
+
+            <a href="#" onclick="showModule('analytics')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all">
+                <i class="fas fa-chart-line text-lg"></i>
+                <span class="sidebar-text font-medium">Analytics</span>
+            </a>
+
+            <a href="#" onclick="showModule('settings')" class="nav-item flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-600 transition-all">
+                <i class="fas fa-cog text-lg"></i>
+                <span class="sidebar-text font-medium">Paramètres</span>
+            </a>
+        </nav>
+
+        <!-- Toggle Sidebar -->
+        <div class="absolute bottom-4 left-4">
+            <button onclick="toggleSidebar()" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-all">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="omni-main-content ml-64 transition-all">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex justify-between items-center px-6 py-4">
+                <!-- Breadcrumb -->
+                <div class="omni-breadcrumb px-4 py-2 rounded-lg">
+                    <nav class="flex space-x-2 text-sm">
+                        <span class="text-gray-500">OMNI.AFRICA.AI</span>
+                        <span class="text-gray-400">/</span>
+                        <span id="currentModule" class="text-orange-600 font-medium">Dashboard</span>
+                    </nav>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-md mx-8">
+                    <div class="omni-search-bar rounded-lg shadow-sm">
+                        <div class="flex items-center px-4 py-2">
+                            <i class="fas fa-search text-gray-400 mr-3"></i>
+                            <input type="text" placeholder="Rechercher dans OMNI.AFRICA.AI..." 
+                                   class="flex-1 bg-transparent border-none outline-none text-gray-700">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-all">
+                            <i class="fas fa-bell text-gray-600"></i>
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-all">
+                            <div class="w-8 h-8 omni-gradient rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm font-medium text-gray-900">Utilisateur OMNI</div>
+                                <div class="text-xs text-gray-500">Mode Test</div>
+                            </div>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+
+                        <!-- User Dropdown -->
+                        <div id="userMenu" class="omni-user-menu absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-user mr-3"></i>Profil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-cog mr-3"></i>Paramètres
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-question-circle mr-3"></i>Aide
+                            </a>
+                            <hr class="my-2">
+                            <a href="login-demo.html" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" class="p-6">
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Bienvenue sur OMNI.AFRICA.AI</h1>
+                <p class="text-gray-600">Solution complète d'IA pour optimiser les processus métier en Afrique</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="omni-stats-card rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Workflows Actifs</p>
+                            <p class="text-2xl font-bold text-gray-900">12</p>
+                            <p class="text-xs text-green-600">↑ +8% ce mois</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-project-diagram text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="omni-stats-card rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Exécutions IA</p>
+                            <p class="text-2xl font-bold text-gray-900">1,247</p>
+                            <p class="text-xs text-green-600">↑ +15% cette semaine</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-brain text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="omni-stats-card rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Taux de Réussite</p>
+                            <p class="text-2xl font-bold text-gray-900">94.2%</p>
+                            <p class="text-xs text-green-600">↑ +2.1% ce mois</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="omni-stats-card rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Langues Supportées</p>
+                            <p class="text-2xl font-bold text-gray-900">15</p>
+                            <p class="text-xs text-blue-600">Nouvelles langues ajoutées</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-language text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules Grid -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Modules OMNI.AFRICA.AI</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Agriculture IA -->
+                    <div onclick="showModule('agriculture')" class="omni-module-card omni-card rounded-xl p-6 cursor-pointer">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-seedling text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Agriculture IA</h3>
+                                <p class="text-sm text-gray-600">Assistant agricole intelligent</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">Recommandations agricoles, reconnaissance vocale, support multilingue pour les agriculteurs africains.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Actif</span>
+                            <i class="fas fa-arrow-right text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- AGI_ELP -->
+                    <div onclick="showModule('agi-elp')" class="omni-module-card omni-card rounded-xl p-6 cursor-pointer">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-brain text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">AGI_ELP</h3>
+                                <p class="text-sm text-gray-600">Assistant Général d'Intelligence</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">Expert en langues et processus, traduction multilingue, analyse de processus avancée.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Nouveau</span>
+                            <i class="fas fa-arrow-right text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Workflows -->
+                    <div onclick="showModule('workflows')" class="omni-module-card omni-card rounded-xl p-6 cursor-pointer">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-project-diagram text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Workflows</h3>
+                                <p class="text-sm text-gray-600">Éditeur de processus visuel</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">Création et gestion de workflows avec drag & drop, automatisation des processus métier.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Disponible</span>
+                            <i class="fas fa-arrow-right text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Analytics -->
+                    <div onclick="showModule('analytics')" class="omni-module-card omni-card rounded-xl p-6 cursor-pointer">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-chart-line text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Analytics</h3>
+                                <p class="text-sm text-gray-600">Tableaux de bord avancés</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">Analyses prédictives, visualisations interactives, insights métier en temps réel.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">En cours</span>
+                            <i class="fas fa-arrow-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Actions Rapides</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="quickAction('voice')" class="omni-quick-action bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-all">
+                        <i class="fas fa-microphone text-2xl text-orange-600 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">Assistant Vocal</p>
+                    </button>
+
+                    <button onclick="quickAction('translate')" class="omni-quick-action bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-all">
+                        <i class="fas fa-language text-2xl text-purple-600 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">Traduction</p>
+                    </button>
+
+                    <button onclick="quickAction('workflow')" class="omni-quick-action bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-all">
+                        <i class="fas fa-plus text-2xl text-blue-600 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">Nouveau Workflow</p>
+                    </button>
+
+                    <button onclick="quickAction('report')" class="omni-quick-action bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-all">
+                        <i class="fas fa-file-alt text-2xl text-green-600 mb-2"></i>
+                        <p class="text-sm font-medium text-gray-900">Rapport</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Activité Récente</h2>
+                <div class="omni-card rounded-xl p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-seedling text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Nouvelle recommandation agricole générée</p>
+                                <p class="text-xs text-gray-500">Il y a 5 minutes</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-brain text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">AGI_ELP a traité 15 requêtes</p>
+                                <p class="text-xs text-gray-500">Il y a 12 minutes</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-project-diagram text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Workflow "Optimisation Agricole" créé</p>
+                                <p class="text-xs text-gray-500">Il y a 25 minutes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Content (Hidden by default) -->
+        <div id="moduleContent" class="hidden p-6">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </main>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="omni-context-menu fixed hidden z-50 p-2 min-w-48">
+        <!-- Context menu items will be added dynamically -->
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="fixed top-4 right-4 z-50 hidden">
+        <div class="omni-notification bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <div>
+                    <p class="text-sm font-medium text-gray-900" id="notificationTitle">Succès</p>
+                    <p class="text-xs text-gray-600" id="notificationMessage">Action effectuée avec succès</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentModule = 'dashboard';
+        let sidebarCollapsed = false;
+
+        // Éléments DOM
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const moduleContent = document.getElementById('moduleContent');
+        const currentModuleElement = document.getElementById('currentModule');
+        const userMenu = document.getElementById('userMenu');
+        const contextMenu = document.getElementById('contextMenu');
+        const notificationToast = document.getElementById('notificationToast');
+
+        // Configuration des modules
+        const modules = {
+            dashboard: {
+                title: 'Dashboard',
+                icon: 'fas fa-tachometer-alt',
+                url: null
+            },
+            agriculture: {
+                title: 'Agriculture IA',
+                icon: 'fas fa-seedling',
+                url: 'agriculture-ai.html'
+            },
+            'agi-elp': {
+                title: 'AGI_ELP',
+                icon: 'fas fa-brain',
+                url: 'agi-elp.html'
+            },
+            workflows: {
+                title: 'Workflows',
+                icon: 'fas fa-project-diagram',
+                url: 'workflow-builder.html'
+            },
+            analytics: {
+                title: 'Analytics',
+                icon: 'fas fa-chart-line',
+                url: 'dashboard-modern.html'
+            },
+            settings: {
+                title: 'Paramètres',
+                icon: 'fas fa-cog',
+                url: null
+            }
+        };
+
+        // Afficher un module
+        function showModule(moduleName) {
+            const module = modules[moduleName];
+            if (!module) return;
+
+            currentModule = moduleName;
+            currentModuleElement.textContent = module.title;
+
+            // Mettre à jour la navigation active
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-orange-50', 'text-orange-600');
+            });
+
+            // Activer l'élément de navigation correspondant
+            const navItems = document.querySelectorAll('.nav-item');
+            const moduleIndex = Object.keys(modules).indexOf(moduleName);
+            if (navItems[moduleIndex]) {
+                navItems[moduleIndex].classList.add('bg-orange-50', 'text-orange-600');
+            }
+
+            if (module.url) {
+                // Charger le module dans une iframe ou rediriger
+                loadModuleContent(module.url);
+            } else if (moduleName === 'dashboard') {
+                showDashboard();
+            } else {
+                showModulePlaceholder(module);
+            }
+
+            showNotification(`Module ${module.title} chargé`, 'Module activé avec succès');
+        }
+
+        // Charger le contenu d'un module
+        function loadModuleContent(url) {
+            dashboardContent.classList.add('hidden');
+            moduleContent.classList.remove('hidden');
+            
+            // Pour l'instant, afficher un placeholder
+            moduleContent.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 omni-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Chargement du module...</h3>
+                    <p class="text-gray-600">Redirection vers ${url}</p>
+                    <button onclick="window.open('${url}', '_blank')" class="mt-4 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-all">
+                        Ouvrir le module
+                    </button>
+                </div>
+            `;
+        }
+
+        // Afficher le dashboard
+        function showDashboard() {
+            dashboardContent.classList.remove('hidden');
+            moduleContent.classList.add('hidden');
+        }
+
+        // Afficher un placeholder pour les modules non développés
+        function showModulePlaceholder(module) {
+            dashboardContent.classList.add('hidden');
+            moduleContent.classList.remove('hidden');
+            
+            moduleContent.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <i class="${module.icon} text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Module ${module.title}</h3>
+                    <p class="text-gray-600 mb-6">Ce module est en cours de développement</p>
+                    <button onclick="showDashboard()" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-all">
+                        Retour au Dashboard
+                    </button>
+                </div>
+            `;
+        }
+
+        // Basculer la sidebar
+        function toggleSidebar() {
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+        }
+
+        // Basculer le menu utilisateur
+        function toggleUserMenu() {
+            userMenu.classList.toggle('hidden');
+        }
+
+        // Actions rapides
+        function quickAction(action) {
+            switch(action) {
+                case 'voice':
+                    showModule('agi-elp');
+                    break;
+                case 'translate':
+                    showModule('agi-elp');
+                    break;
+                case 'workflow':
+                    showModule('workflows');
+                    break;
+                case 'report':
+                    showModule('analytics');
+                    break;
+            }
+        }
+
+        // Afficher une notification
+        function showNotification(title, message) {
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationMessage').textContent = message;
+            
+            notificationToast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notificationToast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Gestionnaire de clic global pour fermer les menus
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#userMenu') && !e.target.closest('button[onclick="toggleUserMenu()"]')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Activer le dashboard par défaut
+            showModule('dashboard');
+            
+            // Ajouter des événements de clic droit pour les menus contextuels
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e.clientX, e.clientY);
+            });
+
+            // Fermer le menu contextuel au clic
+            document.addEventListener('click', () => {
+                contextMenu.classList.add('hidden');
+            });
+        });
+
+        // Afficher le menu contextuel
+        function showContextMenu(x, y) {
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+            contextMenu.classList.remove('hidden');
+            
+            contextMenu.innerHTML = `
+                <div class="py-1">
+                    <a href="#" onclick="showModule('dashboard')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                    </a>
+                    <a href="#" onclick="showModule('agriculture')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                        <i class="fas fa-seedling mr-3"></i>Agriculture IA
+                    </a>
+                    <a href="#" onclick="showModule('agi-elp')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                        <i class="fas fa-brain mr-3"></i>AGI_ELP
+                    </a>
+                    <hr class="my-1">
+                    <a href="#" onclick="showNotification('Aide', 'Support en cours de développement')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded">
+                        <i class="fas fa-question-circle mr-3"></i>Aide
+                    </a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

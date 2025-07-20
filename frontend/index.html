@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI.AFRICA.AI - Intelligence Artificielle Agricole</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OMNI.AFRICA.AI Theme -->
+    <link rel="stylesheet" href="assets/css/omni-theme.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Variables CSS personnalisées */
+        :root {
+            --africa-orange: #FF6B35;
+            --africa-red: #E63946;
+            --africa-purple: #9B59B6;
+            --africa-green: #27AE60;
+            --africa-blue: #3498DB;
+            --africa-yellow: #F1C40F;
+            --africa-brown: #8B4513;
+            --africa-gold: #FFD700;
+        }
+
+        /* Styles personnalisés */
+        .africa-gradient {
+            background: linear-gradient(135deg, var(--africa-green) 0%, var(--africa-yellow) 50%, var(--africa-orange) 100%);
+        }
+
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: var(--africa-green);
+            color: white;
+        }
+
+        .module-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.online {
+            background: var(--africa-green);
+        }
+
+        .status-indicator.offline {
+            background: #6B7280;
+        }
+
+        .status-indicator.syncing {
+            background: var(--africa-yellow);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .speech-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .speech-indicator.speaking {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .main-content {
+            min-height: calc(100vh - 200px);
+        }
+
+        .route-transition {
+            transition: opacity 0.3s ease;
+        }
+
+        .route-transition.loading {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo OMNI.AFRICA.AI -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 africa-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">OMNI.AFRICA.AI</h1>
+                        <p class="text-sm text-gray-500">Intelligence Artificielle Agricole</p>
+                    </div>
+                </div>
+
+                <!-- Indicateurs de statut -->
+                <div class="flex items-center space-x-6">
+                    <!-- Statut Gemini -->
+                    <div class="flex items-center space-x-2">
+                        <div id="geminiStatus" class="status-indicator w-3 h-3 rounded-full offline"></div>
+                        <span id="geminiStatusText" class="text-sm text-gray-500">Gemini Hors ligne</span>
+                    </div>
+
+                    <!-- Statut Synthèse Vocale -->
+                    <div class="flex items-center space-x-2">
+                        <div id="speechIndicator" class="speech-indicator w-3 h-3 rounded-full bg-gray-400"></div>
+                        <span id="speechStatus" class="text-sm text-gray-500">Synthèse Vocale</span>
+                    </div>
+
+                    <!-- Indicateur de connexion -->
+                    <div class="flex items-center space-x-2">
+                        <div id="connectionIndicator" class="w-3 h-3 rounded-full status-indicator offline"></div>
+                        <span id="connectionStatus" class="text-sm text-gray-500">Hors ligne</span>
+                    </div>
+
+                    <!-- ID Utilisateur -->
+                    <div class="text-sm text-gray-600">
+                        ID: <span id="userId" class="font-mono">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8 py-4">
+                <a href="#" data-route="/" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 active">
+                    <i class="fas fa-home mr-2"></i>
+                    Accueil
+                </a>
+                <a href="#" data-route="/agriculture" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-seedling mr-2"></i>
+                    Agriculture IA
+                </a>
+                <a href="#" data-route="/agi-elp" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-brain mr-2"></i>
+                    AGI ELP
+                </a>
+                <a href="#" data-route="/workflows" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-cogs mr-2"></i>
+                    Workflows
+                </a>
+                <a href="#" data-route="/analytics" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Analytics
+                </a>
+                <a href="#" data-route="/config" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-cog mr-2"></i>
+                    Configuration
+                </a>
+                <a href="#" data-route="/voice-chat" class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-microphone mr-2"></i>
+                    Chat Vocal IA
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main id="main-content" class="main-content route-transition">
+        <!-- Écran d'accueil par défaut -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- En-tête de bienvenue -->
+            <div class="text-center mb-12">
+                <div class="w-24 h-24 africa-gradient rounded-full mx-auto mb-6 flex items-center justify-center floating-card">
+                    <i class="fas fa-robot text-white text-4xl"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Bienvenue sur OMNI.AFRICA.AI</h2>
+                <p class="text-xl text-gray-600 mb-8">Votre assistant IA pour l'agriculture africaine</p>
+                
+                <!-- Statut de l'application -->
+                <div class="flex justify-center space-x-8 mb-8">
+                    <div class="text-center">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mx-auto mb-2"></div>
+                        <span class="text-sm text-gray-600">Système Opérationnel</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mx-auto mb-2"></div>
+                        <span class="text-sm text-gray-600">IA Connectée</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-4 h-4 bg-purple-500 rounded-full mx-auto mb-2"></div>
+                        <span class="text-sm text-gray-600">Synthèse Vocale</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules disponibles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Module Agriculture -->
+                <div class="module-card bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500" data-route="/agriculture">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-seedling text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Agriculture IA</h3>
+                            <p class="text-sm text-gray-500">Assistant agricole intelligent</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Obtenez des conseils personnalisés pour vos cultures, diagnostics de maladies, et recommandations techniques adaptées au contexte africain.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-green-600 font-medium">Disponible</span>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Module AGI ELP -->
+                <div class="module-card bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500" data-route="/agi-elp">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-brain text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">AGI ELP</h3>
+                            <p class="text-sm text-gray-500">Analyse et traitement avancé</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Système d'analyse intelligente pour le traitement de documents, la traduction multilingue et l'extraction d'informations agricoles.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-purple-600 font-medium">Disponible</span>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Module Workflows -->
+                <div class="module-card bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500" data-route="/workflows">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-cogs text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Workflows</h3>
+                            <p class="text-sm text-gray-500">Automatisation des processus</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Créez et gérez des workflows automatisés pour optimiser vos processus agricoles et améliorer votre productivité.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-blue-600 font-medium">Disponible</span>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Module Analytics -->
+                <div class="module-card bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500" data-route="/analytics">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-chart-bar text-orange-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Analytics</h3>
+                            <p class="text-sm text-gray-500">Analyse de données agricoles</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Analysez vos données agricoles, suivez vos performances et obtenez des insights pour optimiser vos décisions.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-orange-600 font-medium">Disponible</span>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Module Configuration -->
+                <div class="module-card bg-white rounded-lg shadow-lg p-6 border-l-4 border-gray-500" data-route="/config">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-cog text-gray-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Configuration</h3>
+                            <p class="text-sm text-gray-500">Paramètres et API</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Configurez vos clés API, personnalisez les paramètres de l'IA et ajustez les préférences de synthèse vocale.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600 font-medium">Disponible</span>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Statistiques Rapides</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">15</div>
+                        <div class="text-sm text-gray-500">Cultures Supportées</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">8</div>
+                        <div class="text-sm text-gray-500">Langues Africaines</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">24/7</div>
+                        <div class="text-sm text-gray-500">Disponibilité IA</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-orange-600">100%</div>
+                        <div class="text-sm text-gray-500">Synthèse Vocale</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 africa-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-seedling text-white"></i>
+                    </div>
+                    <span class="font-semibold">OMNI.AFRICA.AI</span>
+                </div>
+                <div class="text-sm text-gray-400">
+                    © 2024 - Intelligence Artificielle pour l'Agriculture Africaine
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de chargement -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 africa-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-seedling text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Chargement en cours</h3>
+                <p class="text-gray-600 mb-6">Initialisation des modules IA...</p>
+                <div class="flex justify-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/speech-synthesis.js"></script>
+    <script src="js/gemini-config.js"></script>
+    <script src="js/router.js"></script>
+
+    <script>
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('🚀 Démarrage OMNI.AFRICA.AI...');
+                
+                // Afficher le modal de chargement
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.remove('hidden');
+                
+                // Générer un ID utilisateur
+                const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                document.getElementById('userId').textContent = userId.substring(0, 8) + '...';
+                
+                // Attendre l'initialisation du routeur
+                await new Promise(resolve => {
+                    const checkRouter = () => {
+                        if (window.omniRouter && window.omniRouter.isInitialized) {
+                            resolve();
+                        } else {
+                            setTimeout(checkRouter, 100);
+                        }
+                    };
+                    checkRouter();
+                });
+                
+                // Masquer le modal de chargement
+                setTimeout(() => {
+                    loadingModal.classList.add('hidden');
+                }, 1000);
+                
+                console.log('✅ Application démarrée avec succès');
+                
+            } catch (error) {
+                console.error('❌ Erreur de démarrage:', error);
+            }
+        });
+
+        // Gestion de la navigation
+        document.addEventListener('click', (e) => {
+            const moduleCard = e.target.closest('.module-card');
+            if (moduleCard) {
+                const route = moduleCard.getAttribute('data-route');
+                if (route && window.omniRouter) {
+                    window.omniRouter.navigateTo(route);
+                }
+            }
+        });
+
+        // Mise à jour des indicateurs de statut
+        function updateStatusIndicators() {
+            // Statut Gemini
+            const geminiStatus = document.getElementById('geminiStatus');
+            const geminiStatusText = document.getElementById('geminiStatusText');
+            
+            if (window.omniRouter && window.omniRouter.geminiAPI && window.omniRouter.geminiAPI.isConnected()) {
+                geminiStatus.className = 'status-indicator w-3 h-3 rounded-full online';
+                geminiStatusText.textContent = 'Gemini Connecté';
+            } else {
+                geminiStatus.className = 'status-indicator w-3 h-3 rounded-full offline';
+                geminiStatusText.textContent = 'Gemini Hors ligne';
+            }
+
+            // Statut Synthèse Vocale
+            const speechIndicator = document.getElementById('speechIndicator');
+            const speechStatus = document.getElementById('speechStatus');
+            
+            if (window.omniRouter && window.omniRouter.speechManager) {
+                speechIndicator.className = 'speech-indicator w-3 h-3 rounded-full bg-green-500';
+                speechStatus.textContent = 'Synthèse Vocale Active';
+            } else {
+                speechIndicator.className = 'speech-indicator w-3 h-3 rounded-full bg-gray-400';
+                speechStatus.textContent = 'Synthèse Vocale';
+            }
+
+            // Statut de connexion
+            const connectionIndicator = document.getElementById('connectionIndicator');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            connectionIndicator.className = 'w-3 h-3 rounded-full status-indicator online';
+            connectionStatus.textContent = 'Connecté';
+        }
+
+        // Mettre à jour les indicateurs toutes les 2 secondes
+        setInterval(updateStatusIndicators, 2000);
+        
+        // Mise à jour initiale
+        updateStatusIndicators();
+    </script>
+</body>
+</html> 

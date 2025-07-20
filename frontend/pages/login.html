@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - OMNI.AFRICA.AI</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --africa-green: #27AE60;
+            --africa-orange: #FF6B35;
+            --africa-yellow: #F1C40F;
+            --africa-brown: #8B4513;
+            --africa-purple: #9B59B6;
+        }
+
+        .africa-gradient {
+            background: linear-gradient(135deg, var(--africa-green) 0%, var(--africa-yellow) 50%, var(--africa-orange) 100%);
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--africa-green), var(--africa-yellow));
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, var(--africa-purple), var(--africa-orange));
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.3);
+        }
+    </style>
+</head>
+<body class="africa-gradient min-h-screen flex items-center justify-center p-4">
+    <div class="form-container rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <!-- Logo et titre -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-seedling text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">OMNI.AFRICA.AI</h1>
+            <p class="text-gray-600">Assistant Agricole Intelligent</p>
+        </div>
+
+        <!-- Formulaire de connexion -->
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-envelope mr-2"></i>Email
+                </label>
+                <input type="email" id="email" name="email" required
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="votre@email.com">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2"></i>Mot de passe
+                </label>
+                <input type="password" id="password" name="password" required
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn-primary w-full text-white font-semibold py-3 rounded-lg">
+                <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+            </button>
+        </form>
+
+        <!-- Séparateur -->
+        <div class="my-6 flex items-center">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="px-4 text-gray-500 text-sm">ou</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+        </div>
+
+        <!-- Bouton d'inscription -->
+        <button id="showSignupBtn" class="btn-secondary w-full text-white font-semibold py-3 rounded-lg">
+            <i class="fas fa-user-plus mr-2"></i>Créer un compte
+        </button>
+
+        <!-- Formulaire d'inscription (caché par défaut) -->
+        <form id="signupForm" class="space-y-6 hidden">
+            <div>
+                <label for="signupName" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-user mr-2"></i>Nom complet
+                </label>
+                <input type="text" id="signupName" name="name" required
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="Votre nom complet">
+            </div>
+
+            <div>
+                <label for="signupEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-envelope mr-2"></i>Email
+                </label>
+                <input type="email" id="signupEmail" name="email" required
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="votre@email.com">
+            </div>
+
+            <div>
+                <label for="signupPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2"></i>Mot de passe
+                </label>
+                <input type="password" id="signupPassword" name="password" required minlength="6"
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="•••••••• (min. 6 caractères)">
+            </div>
+
+            <div>
+                <label for="signupConfirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2"></i>Confirmer le mot de passe
+                </label>
+                <input type="password" id="signupConfirmPassword" name="confirmPassword" required
+                       class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                       placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn-secondary w-full text-white font-semibold py-3 rounded-lg">
+                <i class="fas fa-user-plus mr-2"></i>Créer le compte
+            </button>
+
+            <button type="button" id="showLoginBtn" class="w-full text-gray-600 hover:text-gray-800 py-2">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à la connexion
+            </button>
+        </form>
+
+        <!-- Messages d'état -->
+        <div id="statusMessage" class="mt-4 p-3 rounded-lg hidden">
+            <p id="statusText"></p>
+        </div>
+
+        <!-- Liens utiles -->
+        <div class="mt-6 text-center">
+            <a href="/clear-cache.html" class="text-gray-600 hover:text-gray-800 text-sm">
+                <i class="fas fa-broom mr-1"></i>Nettoyer le cache
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script>
+        let isSignupMode = false;
+
+        // Initialiser Firebase
+        async function initializeApp() {
+            try {
+                await firebaseManager.initialize();
+                
+                // Vérifier si l'utilisateur est déjà connecté
+                if (firebaseManager.isUserLoggedIn()) {
+                    window.location.href = '/frontend/pages/agriculture-ai.html';
+                }
+            } catch (error) {
+                showStatus('Erreur d\'initialisation Firebase', 'error');
+            }
+        }
+
+        // Afficher un message de statut
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            const statusText = document.getElementById('statusText');
+            
+            statusDiv.className = `mt-4 p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : type === 'success' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`;
+            statusText.textContent = message;
+            statusDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Basculer entre connexion et inscription
+        function toggleForm() {
+            isSignupMode = !isSignupMode;
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const showSignupBtn = document.getElementById('showSignupBtn');
+            const showLoginBtn = document.getElementById('showLoginBtn');
+            
+            if (isSignupMode) {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                showSignupBtn.classList.add('hidden');
+            } else {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                showSignupBtn.classList.remove('hidden');
+            }
+        }
+
+        // Gérer la connexion
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            showStatus('Connexion en cours...', 'info');
+            
+            const result = await firebaseManager.signIn(email, password);
+            
+            if (result.success) {
+                showStatus('Connexion réussie ! Redirection vers l\'assistant agricole...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/frontend/pages/agriculture-ai.html';
+                }, 1500);
+            } else {
+                showStatus(`Erreur de connexion: ${result.error}`, 'error');
+            }
+        }
+
+        // Gérer l'inscription
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showStatus('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showStatus('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+            
+            showStatus('Création du compte en cours...', 'info');
+            
+            const result = await firebaseManager.signUp(email, password, name);
+            
+            if (result.success) {
+                showStatus('Compte créé avec succès ! Redirection vers l\'assistant agricole...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/frontend/pages/agriculture-ai.html';
+                }, 1500);
+            } else {
+                showStatus(`Erreur d'inscription: ${result.error}`, 'error');
+            }
+        }
+
+        // Événements
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('signupForm').addEventListener('submit', handleSignup);
+        document.getElementById('showSignupBtn').addEventListener('click', toggleForm);
+        document.getElementById('showLoginBtn').addEventListener('click', toggleForm);
+
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html> 

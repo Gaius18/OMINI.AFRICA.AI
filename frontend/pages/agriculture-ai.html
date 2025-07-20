@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI.AFRICA.AI - Assistant Agricole IA</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --africa-green: #27AE60;
+            --africa-orange: #FF6B35;
+            --africa-yellow: #F1C40F;
+            --africa-brown: #8B4513;
+            --africa-purple: #9B59B6;
+        }
+
+        .africa-gradient {
+            background: linear-gradient(135deg, var(--africa-green) 0%, var(--africa-yellow) 50%, var(--africa-orange) 100%);
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-bubble {
+            background: var(--africa-purple);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .ai-bubble {
+            background: white;
+            color: #374151;
+            border-radius: 20px 20px 20px 5px;
+            border: 2px solid #E5E7EB;
+        }
+
+        .microphone-button {
+            transition: all 0.3s ease;
+        }
+
+        .microphone-button:hover {
+            transform: scale(1.1);
+        }
+
+        .microphone-button.listening {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        .connection-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .connection-indicator.online {
+            background: var(--africa-green);
+        }
+
+        .connection-indicator.offline {
+            background: #6B7280;
+        }
+
+        .connection-indicator.syncing {
+            background: var(--africa-yellow);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header avec statuts -->
+    <header class="africa-gradient text-white p-4 shadow-lg">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-seedling text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">OMNI.AFRICA.AI</h1>
+                    <p class="text-sm opacity-90">Assistant Agricole IA</p>
+                </div>
+            </div>
+            
+            <!-- Statuts -->
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 connection-indicator online"></div>
+                    <span class="text-sm">En Ligne</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 connection-indicator"></div>
+                    <span class="text-sm">Base de données locale</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 connection-indicator"></div>
+                    <span class="text-sm">Synthèse Vocale Active</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-blue-500 connection-indicator"></div>
+                    <span class="text-sm">IA Agricole Connecté</span>
+                    <button onclick="reconnectAPIs()" class="ml-2 text-blue-500 hover:text-blue-600" title="Reconnecter">
+                        <i class="fas fa-sync-alt text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-globe text-sm"></i>
+                    <span class="text-sm">Français</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="/clear-cache.html" class="text-white hover:text-yellow-200 text-sm flex items-center space-x-1" title="Nettoyer le cache">
+                        <i class="fas fa-broom"></i>
+                        <span>Nettoyer</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Interface principale -->
+    <main class="flex h-screen pt-20">
+        <!-- Zone de chat principale -->
+        <div class="flex-1 p-4 max-w-4xl">
+            <!-- Zone de chat -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
+                <!-- Chat Messages -->
+                <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Messages ici -->
+                </div>
+
+                <!-- Chat Input -->
+                <div class="p-4 border-t bg-gray-50">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-1">
+                            <input type="text" id="messageInput" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                   placeholder="Tapez votre message...">
+                        </div>
+                        <button id="voiceInput" class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center microphone-button hover:bg-green-600">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="sendMessage" class="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center hover:bg-purple-600">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau d'historique -->
+        <div id="historyPanel" class="w-80 bg-gray-100 border-l border-gray-300 flex flex-col transition-all duration-300">
+            <!-- En-tête du panneau -->
+            <div class="bg-white border-b border-gray-300 p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800" id="userName">Agriculteur</h3>
+                        <p class="text-xs text-gray-500">Session active</p>
+                    </div>
+                </div>
+                <button onclick="disconnectUser()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm flex items-center space-x-1 transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+
+            <!-- Contenu de l'historique -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <!-- En-tête avec boutons d'action -->
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-history mr-2"></i>
+                        Conversations
+                    </h4>
+                    <div class="flex space-x-1">
+                        <button onclick="createNewFolder()" class="text-blue-600 hover:text-blue-800 text-xs" title="Nouveau dossier">
+                            <i class="fas fa-folder-plus"></i>
+                        </button>
+                        <button onclick="showFolderManager()" class="text-green-600 hover:text-green-800 text-xs" title="Gérer les dossiers">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sélecteur de dossier -->
+                <div class="mb-3">
+                    <select id="folderSelector" onchange="changeCurrentFolder()" class="w-full text-sm border border-gray-300 rounded-lg px-2 py-1 bg-white">
+                        <option value="all">📁 Toutes les conversations</option>
+                        <option value="unsorted">📋 Non classées</option>
+                    </select>
+                </div>
+
+                <!-- Liste des conversations -->
+                <div id="historyList" class="space-y-2">
+                    <!-- L'historique sera ajouté ici dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Bouton pour réduire/agrandir le panneau -->
+            <div class="p-2 border-t border-gray-300">
+                <button id="toggleHistory" onclick="toggleHistoryPanel()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm flex items-center justify-center space-x-2 transition-colors">
+                    <i class="fas fa-chevron-left" id="toggleIcon"></i>
+                    <span id="toggleText">Réduire</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Description de l'IA -->
+                <div class="col-span-2">
+                    <h3 class="text-xl font-bold mb-4 text-green-400">
+                        <i class="fas fa-robot mr-2"></i>OMNI.AFRICA.AI - Assistant Agricole
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        Notre IA agricole africaine est conçue pour aider les agriculteurs à surmonter les barrières linguistiques 
+                        et les problèmes de connectivité. Elle fournit des conseils pratiques sur l'agriculture, la gestion des cultures, 
+                        les techniques de plantation et les solutions aux problèmes agricoles courants en Afrique.
+                    </p>
+                    <p class="text-gray-300 mt-3">
+                        <strong>Fonctionnalités :</strong> Reconnaissance vocale, synthèse audio naturelle, mode hors ligne, 
+                        support multilingue et conseils adaptés au contexte africain.
+                    </p>
+                </div>
+                
+                <!-- Liens utiles -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-green-400">Liens Utiles</h4>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="/clear-cache.html" class="text-gray-300 hover:text-green-400 transition-colors">
+                                <i class="fas fa-broom mr-2"></i>Nettoyer le Cache
+                            </a>
+                        </li>
+
+                        <li>
+                            <button onclick="showAbout()" class="text-gray-300 hover:text-blue-400 transition-colors">
+                                <i class="fas fa-info-circle mr-2"></i>À Propos
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center">
+                <p class="text-gray-400">
+                    © 2024 OMNI.AFRICA.AI - Assistant Agricole Intelligent pour l'Afrique
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/gemini-config.js"></script>
+    <script src="../js/audio-manager.js"></script>
+    <script>
+        // Variables globales
+        let gemini = null;
+        let audioManager = null;
+        let isListening = false;
+        let recognition = null;
+
+        // Éléments DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessage = document.getElementById('sendMessage');
+        const voiceInput = document.getElementById('voiceInput');
+
+        // Initialisation
+        async function initializeApp() {
+            try {
+                console.log('🚀 Initialisation OMNI.AFRICA.AI...');
+                
+                // Initialiser Firebase (optionnel - ne pas bloquer si échec)
+                try {
+                    await firebaseManager.initialize();
+                    console.log('✅ Firebase initialisé');
+                } catch (firebaseError) {
+                    console.warn('⚠️ Firebase non disponible - mode local activé:', firebaseError);
+                }
+                
+                // Mettre à jour le nom d'utilisateur
+                const userInfo = firebaseManager.getUserInfo();
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    if (userInfo) {
+                        userNameElement.textContent = userInfo.displayName || userInfo.email.split('@')[0];
+                    } else {
+                        // Mode demo ou invité
+                        userNameElement.textContent = 'Agriculteur';
+                    }
+                }
+                
+                // Initialiser Gemini
+                gemini = new GeminiConfig();
+                
+                // Initialiser Audio Manager
+                audioManager = new AudioManager();
+                
+                // Initialiser reconnaissance vocale
+                initializeSpeechRecognition();
+                
+                // Charger l'historique (Firebase ou local)
+                await loadHistoryFromFirebase();
+                
+                // Afficher message de bienvenue
+                showWelcomeMessage();
+                
+                console.log('✅ Application initialisée');
+                
+            } catch (error) {
+                console.error('❌ Erreur d\'initialisation:', error);
+                showErrorMessage();
+                
+                // Désactiver les boutons en cas d'erreur
+                voiceInput.disabled = true;
+                sendMessage.disabled = true;
+                messageInput.disabled = true;
+                
+                // Mettre à jour l'indicateur de connexion
+                const connectionIndicator = document.querySelector('.connection-indicator');
+                if (connectionIndicator) {
+                    connectionIndicator.classList.remove('bg-blue-500');
+                    connectionIndicator.classList.add('bg-red-500');
+                }
+                
+                const connectionText = document.querySelector('.connection-indicator').nextElementSibling;
+                if (connectionText) {
+                    connectionText.textContent = 'Déconnecté';
+                }
+            }
+        }
+
+        // Initialiser reconnaissance vocale
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'fr-FR';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    voiceInput.classList.add('listening');
+                    voiceInput.innerHTML = '<i class="fas fa-stop"></i>';
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    handleUserInput(transcript, true); // true = entrée vocale
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Erreur reconnaissance vocale:', event.error);
+                    stopListening();
+                };
+
+                recognition.onend = () => {
+                    stopListening();
+                };
+            }
+        }
+
+        // Arrêter l'écoute
+        function stopListening() {
+            isListening = false;
+            voiceInput.classList.remove('listening');
+            voiceInput.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+
+        // Afficher message de bienvenue
+        function showWelcomeMessage() {
+            const welcomeMessage = {
+                type: 'ai',
+                content: 'Bonjour ! Je suis votre assistant agricole africain. Je peux vous aider avec des conseils sur l\'agriculture. Posez-moi vos questions !',
+                timestamp: new Date()
+            };
+            addMessage(welcomeMessage);
+        }
+
+        // Afficher message d'erreur
+        function showErrorMessage() {
+            const errorMessage = {
+                type: 'ai',
+                content: `❌ **Erreur de connexion**
+                
+Désolé, je ne peux pas répondre en ce moment.
+
+**Problème :** Gemini API et DeepSeek API non disponibles
+
+**Solution :**
+1. Vérifiez votre connexion internet
+2. Assurez-vous que vos clés API sont valides
+3. Cliquez sur "Reconnecter" ci-dessous
+
+<div class="mt-3 flex justify-center">
+    <button onclick="reconnectAPIs()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+        <i class="fas fa-sync-alt"></i>
+        <span>Reconnecter</span>
+    </button>
+</div>
+
+*L'assistant nécessite une connexion API active pour fonctionner.*`,
+                timestamp: new Date()
+            };
+            addMessage(errorMessage);
+        }
+
+        // Gérer l'entrée utilisateur
+        async function handleUserInput(input, isVoiceInput = false) {
+            // Message utilisateur
+            addMessage({
+                type: 'user',
+                content: input,
+                timestamp: new Date()
+            });
+            
+            // Message de chargement
+            const loadingId = addMessage({
+                type: 'ai',
+                content: '<div class="loading-dots">L\'IA réfléchit</div>',
+                timestamp: new Date()
+            }, true);
+            
+            try {
+                // Réponse Gemini
+                const response = await gemini.generateResponse(input);
+                
+                // Remplacer message de chargement avec bouton stop si c'est une entrée vocale
+                updateMessage(loadingId, response, 'ai', isVoiceInput);
+                
+                // Audio seulement si c'est une entrée vocale
+                if (isVoiceInput && audioManager) {
+                    audioManager.speak(response);
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                updateMessage(loadingId, 'Désolé, une erreur s\'est produite. Réessayez.', 'ai');
+            }
+        }
+
+        // Ajouter message
+        function addMessage(message, isLoading = false) {
+            const messageId = 'msg_' + Date.now();
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${message.type === 'user' ? 'user-bubble' : 'ai-bubble'} p-4`;
+            
+            if (isLoading) {
+                bubble.innerHTML = `
+                    <div class="font-medium">
+                        <span class="loading-dots">${message.content}</span>
+                    </div>
+                    <div class="text-xs opacity-70 mt-2">${message.timestamp.toLocaleTimeString()}</div>
+                `;
+            } else {
+                bubble.innerHTML = `
+                    <div class="font-medium">${message.content}</div>
+                    <div class="text-xs opacity-70 mt-2">${message.timestamp.toLocaleTimeString()}</div>
+                `;
+            }
+            
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Ajouter à l'historique si ce n'est pas un message de chargement
+            if (!isLoading) {
+                addToHistory(message);
+            }
+            
+            return messageId;
+        }
+
+        // Mettre à jour message
+        function updateMessage(messageId, content, type, isVoiceResponse = false) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                const bubble = messageDiv.querySelector('.chat-bubble');
+                if (bubble) {
+                    let stopButton = '';
+                    if (isVoiceResponse) {
+                        stopButton = `
+                            <div class="mt-2 flex justify-center">
+                                <button class="stop-audio-btn w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600" onclick="stopCurrentAudio()">
+                                    <i class="fas fa-stop text-xs"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    bubble.innerHTML = `
+                        <div class="font-medium">${content}</div>
+                        <div class="text-xs opacity-70 mt-2">${new Date().toLocaleTimeString()}</div>
+                        ${stopButton}
+                    `;
+                }
+            }
+        }
+
+        // Événements
+        voiceInput.addEventListener('click', () => {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        // Fonction pour arrêter l'audio en cours
+        function stopCurrentAudio() {
+            if (audioManager) {
+                audioManager.stop();
+            }
+            // Masquer tous les boutons stop
+            const stopButtons = document.querySelectorAll('.stop-audio-btn');
+            stopButtons.forEach(btn => btn.style.display = 'none');
+        }
+
+        // Variables pour l'historique et les dossiers
+        let conversationHistory = [];
+        let folders = [];
+        let currentFolder = 'all';
+        let isHistoryPanelCollapsed = false;
+
+        // Fonction pour se déconnecter
+        async function disconnectUser() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ? Vos conversations seront sauvegardées.')) {
+                try {
+                    // Arrêter l'audio en cours
+                    if (audioManager) {
+                        audioManager.stop();
+                    }
+                    
+                    // Sauvegarder les conversations dans Firebase
+                    if (firebaseManager && firebaseManager.isUserLoggedIn()) {
+                        await firebaseManager.saveConversations(conversationHistory, folders);
+                    }
+                    
+                    // Sauvegarder aussi en local
+                    saveHistoryToStorage();
+                    saveFoldersToStorage();
+                    
+                    // Déconnexion Firebase
+                    if (firebaseManager) {
+                        await firebaseManager.signOut();
+                    }
+                    
+                    // Nettoyer les données de session
+                    sessionStorage.clear();
+                    localStorage.removeItem('userSession');
+                    
+                    // Rediriger vers la page de connexion
+                    window.location.href = 'http://localhost:8080/frontend/pages/login-demo.html';
+                    
+                } catch (error) {
+                    console.error('Erreur lors de la déconnexion:', error);
+                    // Redirection forcée même en cas d'erreur
+                    window.location.href = 'http://localhost:8080/frontend/pages/login-demo.html';
+                }
+            }
+        }
+
+        // Fonction pour basculer le panneau d'historique
+        function toggleHistoryPanel() {
+            const panel = document.getElementById('historyPanel');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (isHistoryPanelCollapsed) {
+                // Agrandir le panneau
+                panel.style.width = '320px';
+                toggleIcon.className = 'fas fa-chevron-left';
+                toggleText.textContent = 'Réduire';
+                isHistoryPanelCollapsed = false;
+            } else {
+                // Réduire le panneau
+                panel.style.width = '60px';
+                toggleIcon.className = 'fas fa-chevron-right';
+                toggleText.textContent = '';
+                isHistoryPanelCollapsed = true;
+            }
+        }
+
+        // Fonction pour ajouter à l'historique
+        function addToHistory(message) {
+            const historyItem = {
+                id: 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                content: message.content,
+                type: message.type,
+                timestamp: message.timestamp,
+                preview: message.content.substring(0, 50) + (message.content.length > 50 ? '...' : '')
+            };
+            
+            console.log('➕ Ajout d\'une conversation à l\'historique:', historyItem.id);
+            
+            conversationHistory.unshift(historyItem);
+            
+            // Limiter l'historique à 50 messages
+            if (conversationHistory.length > 50) {
+                conversationHistory = conversationHistory.slice(0, 50);
+            }
+            
+            updateHistoryDisplay();
+            saveHistoryToStorage();
+            
+            // Sauvegarder dans Firebase en arrière-plan
+            setTimeout(() => {
+                saveHistoryToFirebase();
+            }, 1000);
+        }
+
+        // Fonction pour mettre à jour l'affichage de l'historique
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            // Filtrer les conversations selon le dossier actuel
+            let filteredHistory = conversationHistory;
+            if (currentFolder !== 'all') {
+                filteredHistory = conversationHistory.filter(item => {
+                    if (currentFolder === 'unsorted') {
+                        return !item.folderId;
+                    }
+                    return item.folderId === currentFolder;
+                });
+            }
+            
+            filteredHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'bg-white rounded-lg p-3 shadow-sm hover:bg-gray-50 transition-colors';
+                
+                const icon = item.type === 'user' ? 'fas fa-user' : 'fas fa-robot';
+                const color = item.type === 'user' ? 'text-purple-600' : 'text-green-600';
+                
+                // Trouver le dossier de cette conversation
+                const folder = folders.find(f => f.id === item.folderId);
+                const folderBadge = folder ? `<span class="inline-block px-1 py-0.5 text-xs rounded bg-${folder.color}-100 text-${folder.color}-800 mr-1">${folder.name.split(' ')[0]}</span>` : '';
+                
+                historyItem.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="flex-1 min-w-0 cursor-pointer" onclick="scrollToMessage('${item.id}')">
+                            <div class="flex items-center mb-1">
+                                <i class="${icon} ${color} mt-1 text-xs mr-2"></i>
+                                ${folderBadge}
+                            </div>
+                            <p class="text-sm text-gray-800 truncate">${item.preview}</p>
+                            <p class="text-xs text-gray-500 mt-1">${item.timestamp.toLocaleTimeString()}</p>
+                        </div>
+                        <div class="flex flex-col space-y-1">
+                            <button onclick="moveToFolder('${item.id}')" class="text-blue-600 hover:text-blue-800 text-xs" title="Déplacer vers un dossier">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                            <button onclick="deleteConversation('${item.id}')" class="text-red-600 hover:text-red-800 text-xs" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Fonction pour faire défiler vers un message
+        function scrollToMessage(messageId) {
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                messageElement.style.backgroundColor = '#fef3c7';
+                setTimeout(() => {
+                    messageElement.style.backgroundColor = '';
+                }, 2000);
+            }
+        }
+
+        // Fonction pour sauvegarder l'historique
+        function saveHistoryToStorage() {
+            try {
+                localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde de l\'historique:', error);
+            }
+        }
+
+        // Fonction pour sauvegarder dans Firebase
+        async function saveHistoryToFirebase() {
+            try {
+                if (firebaseManager && firebaseManager.isUserLoggedIn()) {
+                    const result = await firebaseManager.saveConversations(conversationHistory, folders);
+                    if (result.success) {
+                        console.log('✅ Données sauvegardées dans Firebase');
+                    } else {
+                        console.error('❌ Erreur sauvegarde Firebase:', result.error);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erreur lors de la sauvegarde Firebase:', error);
+            }
+        }
+
+        // Fonction pour sauvegarder les dossiers
+        function saveFoldersToStorage() {
+            try {
+                localStorage.setItem('conversationFolders', JSON.stringify(folders));
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde des dossiers:', error);
+            }
+        }
+
+        // Fonction pour sauvegarder les dossiers dans Firebase
+        async function saveFoldersToFirebase() {
+            try {
+                if (firebaseManager && firebaseManager.isUserLoggedIn()) {
+                    const result = await firebaseManager.saveConversations(conversationHistory, folders);
+                    if (result.success) {
+                        console.log('✅ Dossiers sauvegardés dans Firebase');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erreur lors de la sauvegarde des dossiers Firebase:', error);
+            }
+        }
+
+        // Fonction pour mettre à jour le sélecteur de dossiers
+        function updateFolderSelector() {
+            const selector = document.getElementById('folderSelector');
+            selector.innerHTML = '<option value="all">📁 Toutes les conversations</option><option value="unsorted">📋 Non classées</option>';
+            
+            folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.name;
+                selector.appendChild(option);
+            });
+        }
+
+        // Fonction pour changer de dossier actuel
+        function changeCurrentFolder() {
+            const selector = document.getElementById('folderSelector');
+            currentFolder = selector.value;
+            updateHistoryDisplay();
+        }
+
+        // Fonction pour créer un nouveau dossier
+        function createNewFolder() {
+            const folderName = prompt('Nom du nouveau dossier :');
+            if (folderName && folderName.trim()) {
+                const folderId = 'folder_' + Date.now();
+                const colors = ['green', 'blue', 'red', 'yellow', 'purple', 'pink', 'indigo'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const newFolder = {
+                    id: folderId,
+                    name: folderName.trim(),
+                    color: randomColor
+                };
+                
+                folders.push(newFolder);
+                saveFoldersToStorage();
+                saveFoldersToFirebase();
+                updateFolderSelector();
+                updateHistoryDisplay();
+            }
+        }
+
+        // Fonction pour déplacer une conversation vers un dossier
+        function moveToFolder(conversationId) {
+            const conversation = conversationHistory.find(c => c.id === conversationId);
+            if (!conversation) return;
+
+            // Créer la liste des dossiers disponibles
+            let folderOptions = '<option value="">📋 Non classées</option>';
+            folders.forEach(folder => {
+                folderOptions += `<option value="${folder.id}" ${conversation.folderId === folder.id ? 'selected' : ''}>${folder.name}</option>`;
+            });
+
+            const currentFolder = conversation.folderId || '';
+            const newFolderId = prompt(`Déplacer vers quel dossier ?\n\n${folderOptions}`, currentFolder);
+            
+            if (newFolderId !== null) {
+                conversation.folderId = newFolderId || null;
+                saveHistoryToStorage();
+                saveHistoryToFirebase();
+                updateHistoryDisplay();
+            }
+        }
+
+        // Fonction pour supprimer une conversation
+        function deleteConversation(conversationId) {
+            console.log('🗑️ Tentative de suppression de conversation:', conversationId);
+            console.log('📋 Conversations avant suppression:', conversationHistory.length);
+            
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')) {
+                // Trouver la conversation à supprimer
+                const conversationToDelete = conversationHistory.find(c => c.id == conversationId);
+                if (conversationToDelete) {
+                    console.log('✅ Conversation trouvée:', conversationToDelete);
+                    
+                    // Supprimer la conversation
+                    conversationHistory = conversationHistory.filter(c => c.id != conversationId);
+                    console.log('📋 Conversations après suppression:', conversationHistory.length);
+                    
+                    // Sauvegarder les changements
+                    saveHistoryToStorage();
+                    saveHistoryToFirebase();
+                    updateHistoryDisplay();
+                    
+                    console.log('✅ Conversation supprimée avec succès');
+                } else {
+                    console.error('❌ Conversation non trouvée avec l\'ID:', conversationId);
+                    alert('Erreur : Conversation non trouvée');
+                }
+            }
+        }
+
+        // Fonction pour afficher le gestionnaire de dossiers
+        function showFolderManager() {
+            let folderList = '📁 **Gestionnaire de Dossiers**\n\n';
+            folders.forEach(folder => {
+                const count = conversationHistory.filter(c => c.folderId === folder.id).length;
+                folderList += `• ${folder.name} (${count} conversations)\n`;
+            });
+            
+            const totalUnsorted = conversationHistory.filter(c => !c.folderId).length;
+            folderList += `\n📋 **Non classées :** ${totalUnsorted} conversations`;
+            
+            const aboutMessage = {
+                type: 'ai',
+                content: folderList,
+                timestamp: new Date()
+            };
+            addMessage(aboutMessage);
+        }
+
+        // Fonction pour charger l'historique depuis Firebase
+        async function loadHistoryFromFirebase() {
+            try {
+                // Essayer de charger depuis Firebase d'abord
+                if (firebaseManager && firebaseManager.isInitialized && firebaseManager.isUserLoggedIn()) {
+                    const result = await firebaseManager.loadConversations();
+                    if (result.success && result.conversations.length > 0) {
+                        conversationHistory = result.conversations.map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp)
+                        }));
+                        folders = result.folders || [];
+                        console.log('✅ Données chargées depuis Firebase');
+                    } else {
+                        // Charger depuis le stockage local si Firebase est vide
+                        loadHistoryFromStorage();
+                    }
+                } else {
+                    // Charger depuis le stockage local si pas de Firebase ou pas connecté
+                    console.log('📱 Mode local - chargement depuis le stockage local');
+                    loadHistoryFromStorage();
+                }
+                
+                updateFolderSelector();
+                updateHistoryDisplay();
+            } catch (error) {
+                console.error('Erreur lors du chargement depuis Firebase:', error);
+                // Fallback vers le stockage local
+                loadHistoryFromStorage();
+            }
+        }
+
+        // Fonction pour charger l'historique depuis le stockage local
+        function loadHistoryFromStorage() {
+            try {
+                const saved = localStorage.getItem('conversationHistory');
+                if (saved) {
+                    conversationHistory = JSON.parse(saved).map(item => ({
+                        ...item,
+                        timestamp: new Date(item.timestamp)
+                    }));
+                }
+                
+                // Charger les dossiers
+                const savedFolders = localStorage.getItem('conversationFolders');
+                if (savedFolders) {
+                    folders = JSON.parse(savedFolders);
+                } else {
+                    // Créer des dossiers par défaut
+                    folders = [
+                        { id: 'agriculture', name: '🌱 Agriculture Générale', color: 'green' },
+                        { id: 'techniques', name: '🔧 Techniques de Culture', color: 'blue' },
+                        { id: 'maladies', name: '🦠 Maladies et Traitements', color: 'red' },
+                        { id: 'climat', name: '🌤️ Climat et Saison', color: 'yellow' }
+                    ];
+                    saveFoldersToStorage();
+                }
+                
+                updateFolderSelector();
+                updateHistoryDisplay();
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'historique:', error);
+            }
+        }
+
+        // Fonction pour afficher les informations
+        function showAbout() {
+            const aboutMessage = {
+                type: 'ai',
+                content: `🤖 **OMNI.AFRICA.AI - Assistant Agricole Intelligent**
+
+**Mission :** Aider les agriculteurs africains à surmonter les barrières linguistiques et les problèmes de connectivité.
+
+**Fonctionnalités principales :**
+• 🎤 Reconnaissance vocale en français
+• 🔊 Synthèse audio naturelle
+• 🌱 Conseils agricoles adaptés au contexte africain
+• 📱 Interface intuitive et accessible
+• 🔄 Mode hors ligne avec cache local
+• 🔗 Reconnexion automatique aux APIs
+
+**Technologies utilisées :**
+• Google Gemini AI pour les réponses intelligentes
+• Web Speech API pour la reconnaissance vocale
+• IndexedDB pour le stockage local
+• Interface responsive avec Tailwind CSS
+
+**Objectif :** Rendre l'IA agricole accessible à tous les agriculteurs africains, même avec une connexion limitée.`,
+                timestamp: new Date()
+            };
+            addMessage(aboutMessage);
+        }
+
+        // Fonction pour reconnecter les APIs
+        async function reconnectAPIs() {
+            // Message de reconnexion
+            const reconnectId = addMessage({
+                type: 'ai',
+                content: '<div class="loading-dots">Tentative de reconnexion...</div>',
+                timestamp: new Date()
+            }, true);
+
+            try {
+                // Réinitialiser Gemini
+                gemini = new GeminiConfig();
+                
+                // Tester la connexion avec une question simple
+                const testResponse = await gemini.generateResponse('Test de connexion');
+                
+                if (testResponse && testResponse.length > 0) {
+                    // Succès - remplacer le message
+                    updateMessage(reconnectId, '✅ **Connexion rétablie !**\n\nL\'IA agricole est maintenant disponible. Vous pouvez poser vos questions !', 'ai');
+                    
+                    // Activer les boutons
+                    voiceInput.disabled = false;
+                    sendMessage.disabled = false;
+                    messageInput.disabled = false;
+                    
+                    // Mettre à jour l'indicateur de connexion
+                    const connectionIndicator = document.querySelector('.connection-indicator');
+                    if (connectionIndicator) {
+                        connectionIndicator.classList.remove('bg-red-500');
+                        connectionIndicator.classList.add('bg-blue-500');
+                    }
+                    
+                    const connectionText = document.querySelector('.connection-indicator').nextElementSibling;
+                    if (connectionText) {
+                        connectionText.textContent = 'IA Agricole Connecté';
+                    }
+                    
+                } else {
+                    throw new Error('Réponse vide');
+                }
+                
+            } catch (error) {
+                console.error('Erreur de reconnexion:', error);
+                updateMessage(reconnectId, '❌ **Échec de la reconnexion**\n\nImpossible de rétablir la connexion. Vérifiez votre connexion internet et vos clés API.', 'ai');
+            }
+        }
+
+        sendMessage.addEventListener('click', async () => {
+            const input = messageInput.value.trim();
+            if (input) {
+                await handleUserInput(input, false); // false = entrée texte
+                messageInput.value = '';
+            }
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage.click();
+            }
+        });
+
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html> 

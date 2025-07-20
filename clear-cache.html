@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nettoyage du Cache - OMNI_OPTIMIZ_AFRIC.IA</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Nettoyage du Cache</h1>
+        <p>Cette page vous permet de nettoyer tous les caches de l'application pour résoudre les problèmes.</p>
+        
+        <button class="btn" onclick="clearAllCaches()">🗑️ Nettoyer Tout le Cache</button>
+        <button class="btn" onclick="clearIndexedDB()">🗄️ Nettoyer Base Locale</button>
+        <button class="btn" onclick="clearLocalStorage()">💾 Nettoyer Stockage Local</button>
+        <button class="btn" onclick="clearSessionStorage()">📝 Nettoyer Session</button>
+        
+        <div id="status"></div>
+        
+        <button class="btn" onclick="reloadApp()">🔄 Recharger l'Application</button>
+        <button class="btn" onclick="goToMainApp()">🏠 Aller à l'Application</button>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        async function clearAllCaches() {
+            try {
+                showStatus('🧹 Nettoyage en cours...', 'info');
+                
+                // Clear IndexedDB
+                await clearIndexedDB();
+                
+                // Clear LocalStorage
+                clearLocalStorage();
+                
+                // Clear SessionStorage
+                clearSessionStorage();
+                
+                // Clear Cache API
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                
+                showStatus('✅ Tous les caches ont été nettoyés avec succès !', 'success');
+            } catch (error) {
+                showStatus(`❌ Erreur lors du nettoyage: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearIndexedDB() {
+            try {
+                // Clear all IndexedDB databases
+                const databases = await window.indexedDB.databases();
+                for (const db of databases) {
+                    if (db.name) {
+                        await window.indexedDB.deleteDatabase(db.name);
+                    }
+                }
+                
+                // Also try to clear specific databases we know about
+                const dbNames = ['agriculture-cache', 'translations-cache', 'offline-data'];
+                for (const dbName of dbNames) {
+                    try {
+                        await window.indexedDB.deleteDatabase(dbName);
+                    } catch (e) {
+                        // Ignore errors if database doesn't exist
+                    }
+                }
+                
+                showStatus('🗄️ Base de données locale nettoyée', 'success');
+            } catch (error) {
+                showStatus(`❌ Erreur IndexedDB: ${error.message}`, 'error');
+            }
+        }
+
+        function clearLocalStorage() {
+            try {
+                localStorage.clear();
+                showStatus('💾 Stockage local nettoyé', 'success');
+            } catch (error) {
+                showStatus(`❌ Erreur LocalStorage: ${error.message}`, 'error');
+            }
+        }
+
+        function clearSessionStorage() {
+            try {
+                sessionStorage.clear();
+                showStatus('📝 Session nettoyée', 'success');
+            } catch (error) {
+                showStatus(`❌ Erreur SessionStorage: ${error.message}`, 'error');
+            }
+        }
+
+        function reloadApp() {
+            showStatus('🔄 Rechargement de l\'application...', 'info');
+            setTimeout(() => {
+                window.location.href = '/frontend/pages/agriculture-ai.html';
+            }, 1000);
+        }
+
+        function goToMainApp() {
+            window.location.href = '/frontend/pages/agriculture-ai.html';
+        }
+
+        // Auto-clear on page load
+        window.addEventListener('load', () => {
+            showStatus('🚀 Page de nettoyage chargée. Cliquez sur un bouton pour commencer.', 'info');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OMNI.AFRICA.AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OMNI.AFRICA.AI Theme -->
+    <link rel="stylesheet" href="../assets/css/omni-theme.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Variables CSS personnalisées */
+        :root {
+            --omni-primary: #FF6B35;
+            --omni-secondary: #9B59B6;
+            --omni-success: #27AE60;
+            --omni-warning: #F1C40F;
+            --omni-info: #3498DB;
+            --omni-dark: #2C3E50;
+            --omni-light: #ECF0F1;
+        }
+
+        /* Styles personnalisés */
+        .omni-gradient {
+            background: linear-gradient(135deg, var(--omni-primary) 0%, var(--omni-secondary) 50%, var(--omni-success) 100%);
+        }
+
+        .omni-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .omni-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .omni-floating {
+            animation: omniFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes omniFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+            75% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        .omni-pulse {
+            animation: omniPulse 2s infinite;
+        }
+
+        @keyframes omniPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+        }
+
+        .metric-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .metric-card:hover::before {
+            left: 100%;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .agriculture-gradient {
+            background: linear-gradient(135deg, var(--omni-success) 0%, var(--omni-warning) 50%, var(--omni-primary) 100%);
+        }
+
+        .enterprise-gradient {
+            background: linear-gradient(135deg, var(--omni-info) 0%, var(--omni-secondary) 50%, var(--omni-primary) 100%);
+        }
+
+        .analytics-gradient {
+            background: linear-gradient(135deg, var(--omni-warning) 0%, var(--omni-success) 50%, var(--omni-info) 100%);
+        }
+
+        .faq-gradient {
+            background: linear-gradient(135deg, var(--omni-secondary) 0%, var(--omni-primary) 50%, var(--omni-warning) 100%);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+
+        .notification-badge {
+            animation: notificationPulse 2s infinite;
+        }
+
+        @keyframes notificationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .test-mode-badge {
+            background: linear-gradient(135deg, var(--omni-warning) 0%, var(--omni-primary) 100%);
+            animation: testModeGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes testModeGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(241, 196, 15, 0.8); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50 font-['Inter'] min-h-screen">
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-40">
+        <!-- Logo OMNI.AFRICA.AI -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 omni-gradient rounded-lg flex items-center justify-center omni-floating">
+                    <i class="fas fa-globe-africa text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">OMNI.AFRICA.AI</h1>
+                    <p class="text-sm text-gray-500">Solution IA Africa</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="p-4 space-y-2">
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg bg-purple-50 text-purple-600">
+                <i class="fas fa-tachometer-alt text-lg"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <i class="fas fa-project-diagram text-lg"></i>
+                <span class="font-medium">Workflows</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <i class="fas fa-robot text-lg"></i>
+                <span class="font-medium">Agents IA</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <i class="fas fa-chart-line text-lg"></i>
+                <span class="font-medium">Analytics</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <i class="fas fa-cog text-lg"></i>
+                <span class="font-medium">Paramètres</span>
+            </a>
+
+            <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <i class="fas fa-question-circle text-lg"></i>
+                <span class="font-medium">Aide</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600">Bienvenue dans votre espace OMNI.AFRICA.AI</p>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <div class="relative">
+                    <button class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-all">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center notification-badge">3</span>
+                    </button>
+                </div>
+
+                <!-- User Menu -->
+                <div class="relative">
+                    <button class="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-all">
+                        <div class="w-8 h-8 omni-gradient rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-sm font-medium text-gray-900">Utilisateur</div>
+                            <div class="text-xs text-gray-500">Mode Test</div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                </div>
+
+                <!-- Test Mode Badge -->
+                <div class="test-mode-badge text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    <i class="fas fa-flask mr-2"></i>Mode Test
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Workflows Actifs (Agriculteurs) -->
+            <div class="metric-card omni-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">WORKFLOWS ACTIFS</p>
+                        <p class="text-2xl font-bold text-gray-900">12</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-sm text-green-600">+8% ce mois</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 agriculture-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-seedling text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-users mr-1"></i>
+                    Agriculteurs actifs
+                </div>
+            </div>
+
+            <!-- Exécutions (Entreprises) -->
+            <div class="metric-card omni-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">EXÉCUTIONS</p>
+                        <p class="text-2xl font-bold text-gray-900">1,247</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-sm text-green-600">+15% cette semaine</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 enterprise-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-building text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-industry mr-1"></i>
+                    Entreprises partenaires
+                </div>
+            </div>
+
+            <!-- Taux de Réussite (Analyse des Données) -->
+            <div class="metric-card omni-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">TAUX DE RÉUSSITE</p>
+                        <p class="text-2xl font-bold text-gray-900">94.2%</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-sm text-green-600">+2.1% ce mois</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 analytics-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-pie text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-database mr-1"></i>
+                    Analyse des données
+                </div>
+            </div>
+
+            <!-- Opérations IA (FAQ) -->
+            <div class="metric-card omni-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">OPÉRATIONS IA</p>
+                        <p class="text-2xl font-bold text-gray-900">3,891</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-sm text-green-600">+23% aujourd'hui</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 faq-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-question-circle text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-comments mr-1"></i>
+                    FAQ et assistance
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Activité des Workflows -->
+            <div class="omni-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Activité des Workflows</h3>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 bg-purple-100 text-purple-600 rounded-lg text-sm font-medium">7j</button>
+                        <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm">30j</button>
+                        <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm">90j</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <div class="w-32 h-32 mx-auto mb-4">
+                                <svg class="w-full h-full" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                                    <circle cx="60" cy="60" r="54" fill="none" stroke="#8b5cf6" stroke-width="8" 
+                                            stroke-dasharray="339.292" stroke-dashoffset="67.8584" 
+                                            class="progress-ring-circle"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-gray-900">80%</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600">Workflows agricoles actifs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Utilisation des Modèles IA -->
+            <div class="omni-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Utilisation des Modèles IA</h3>
+                    <div class="text-sm text-gray-500">Ce mois</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700">Agriculture IA</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">45%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700">AGI_ELP</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">30%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700">Analytics</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">15%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700">Workflows</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="omni-card rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Activité Récente</h3>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-seedling text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Nouvelle recommandation agricole générée</p>
+                        <p class="text-xs text-gray-500">Il y a 5 minutes • Cacao - Côte d'Ivoire</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-building text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Entreprise partenaire ajoutée</p>
+                        <p class="text-xs text-gray-500">Il y a 12 minutes • AgroTech Mali</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Analyse de données terminée</p>
+                        <p class="text-xs text-gray-500">Il y a 25 minutes • Tendances agricoles</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-question-circle text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">FAQ mise à jour</p>
+                        <p class="text-xs text-gray-500">Il y a 1 heure • 15 nouvelles questions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <div class="flex items-center justify-center space-x-2">
+                <div class="w-8 h-8 omni-gradient rounded-lg flex items-center justify-center">
+                    <i class="fas fa-globe-africa text-white text-sm"></i>
+                </div>
+                <span class="text-sm text-gray-600">OMNI.AFRICA.AI - Solution IA pour l'Agriculture Africaine</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Détecter le mode test
+        const isTestMode = localStorage.getItem('omni_test_mode') === 'true' || 
+                          window.location.hostname === 'localhost';
+
+        // Mettre à jour l'affichage du mode test
+        if (isTestMode) {
+            document.querySelector('.test-mode-badge').classList.remove('hidden');
+        }
+
+        // Animation des métriques
+        function animateMetrics() {
+            const metrics = document.querySelectorAll('.metric-card');
+            metrics.forEach((metric, index) => {
+                setTimeout(() => {
+                    metric.style.opacity = '0';
+                    metric.style.transform = 'translateY(20px)';
+                    metric.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        metric.style.opacity = '1';
+                        metric.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        }
+
+        // Initialiser les animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateMetrics();
+        });
+
+        // Mettre à jour les données en temps réel (simulation)
+        function updateMetrics() {
+            const workflowsElement = document.querySelector('.metric-card:nth-child(1) .text-2xl');
+            const executionsElement = document.querySelector('.metric-card:nth-child(2) .text-2xl');
+            const successElement = document.querySelector('.metric-card:nth-child(3) .text-2xl');
+            const operationsElement = document.querySelector('.metric-card:nth-child(4) .text-2xl');
+
+            // Simuler des mises à jour
+            setInterval(() => {
+                if (workflowsElement) {
+                    const current = parseInt(workflowsElement.textContent);
+                    workflowsElement.textContent = current + Math.floor(Math.random() * 2);
+                }
+                
+                if (executionsElement) {
+                    const current = parseInt(executionsElement.textContent.replace(',', ''));
+                    executionsElement.textContent = (current + Math.floor(Math.random() * 10)).toLocaleString();
+                }
+                
+                if (successElement) {
+                    const current = parseFloat(successElement.textContent.replace('%', ''));
+                    const newValue = Math.max(90, Math.min(98, current + (Math.random() - 0.5) * 2));
+                    successElement.textContent = newValue.toFixed(1) + '%';
+                }
+                
+                if (operationsElement) {
+                    const current = parseInt(operationsElement.textContent.replace(',', ''));
+                    operationsElement.textContent = (current + Math.floor(Math.random() * 5)).toLocaleString();
+                }
+            }, 5000);
+        }
+
+        // Démarrer les mises à jour
+        updateMetrics();
+    </script>
+</body>
+</html> 

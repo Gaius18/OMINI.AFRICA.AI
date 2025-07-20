@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI.AFRICA.AI - Chat Vocal IA</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Variables CSS personnalisées */
+        :root {
+            --africa-orange: #FF6B35;
+            --africa-red: #E63946;
+            --africa-purple: #9B59B6;
+            --africa-green: #27AE60;
+            --africa-blue: #3498DB;
+            --africa-yellow: #F1C40F;
+            --africa-brown: #8B4513;
+            --africa-gold: #FFD700;
+        }
+
+        /* Styles personnalisés */
+        .africa-gradient {
+            background: linear-gradient(135deg, var(--africa-green) 0%, var(--africa-yellow) 50%, var(--africa-orange) 100%);
+        }
+
+        .voice-button {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .voice-button:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-button.listening {
+            animation: pulse 2s infinite;
+            background: var(--africa-red) !important;
+        }
+
+        .voice-button.speaking {
+            animation: pulse 2s infinite;
+            background: var(--africa-green) !important;
+        }
+
+        .voice-button.error {
+            background: var(--africa-red) !important;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+        }
+
+        .chat-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: var(--africa-purple);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .ai-message {
+            background: white;
+            color: #374151;
+            border-radius: 20px 20px 20px 5px;
+            border: 2px solid #E5E7EB;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .status-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.online {
+            background: var(--africa-green);
+        }
+
+        .status-indicator.offline {
+            background: #6B7280;
+        }
+
+        .status-indicator.error {
+            background: var(--africa-red);
+        }
+
+        .floating-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .connection-badge {
+            background: var(--africa-green);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .connection-badge.offline {
+            background: var(--africa-orange);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo OMNI.AFRICA.AI -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 africa-gradient rounded-lg flex items-center justify-center">
+                        <i class="fas fa-microphone text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">OMNI.AFRICA.AI</h1>
+                        <p class="text-sm text-gray-500">Chat Vocal IA</p>
+                    </div>
+                </div>
+
+                <!-- Indicateurs de statut -->
+                <div class="flex items-center space-x-4">
+                    <!-- Statut de connexion -->
+                    <div class="flex items-center space-x-2">
+                        <div id="connectionStatus" class="status-indicator w-3 h-3 rounded-full online"></div>
+                        <span id="connectionText" class="text-sm text-gray-500">Connecté</span>
+                    </div>
+
+                    <!-- Statut Gemini -->
+                    <div class="flex items-center space-x-2">
+                        <div id="geminiStatus" class="status-indicator w-3 h-3 rounded-full offline"></div>
+                        <span id="geminiText" class="text-sm text-gray-500">Gemini Hors ligne</span>
+                    </div>
+
+                    <!-- Statut vocal -->
+                    <div class="flex items-center space-x-2">
+                        <div id="voiceStatus" class="status-indicator w-3 h-3 rounded-full offline"></div>
+                        <span id="voiceText" class="text-sm text-gray-500">Microphone</span>
+                    </div>
+
+                    <!-- Utilisateur -->
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-user mr-1"></i>
+                        <span id="userName">Invité</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Zone de chat -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Chat Vocal avec l'IA</h2>
+                <div class="connection-badge" id="connectionBadge">
+                    <i class="fas fa-wifi mr-1"></i>
+                    En Ligne
+                </div>
+            </div>
+
+            <!-- Messages de chat -->
+            <div id="chatMessages" class="chat-container space-y-4 mb-6">
+                <!-- Message de bienvenue -->
+                <div class="flex justify-start">
+                    <div class="message-bubble ai-message px-4 py-3">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot mr-2 mt-1 text-green-500"></i>
+                            <div>
+                                <div class="text-sm">
+                                    🎤 Bonjour ! Je suis votre assistant IA vocal. 
+                                    <br><br>
+                                    <strong>Comment utiliser :</strong>
+                                    <br>• Cliquez sur le bouton microphone pour parler
+                                    <br>• Appuyez sur <strong>Espace</strong> pour activer/désactiver
+                                    <br>• Appuyez sur <strong>Échap</strong> pour arrêter la lecture
+                                    <br><br>
+                                    Posez-moi vos questions sur l'agriculture africaine !
+                                </div>
+                                <div class="text-xs text-gray-500 mt-2">
+                                    🌱 Assistant Agricole IA
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de saisie texte -->
+            <div class="flex space-x-4">
+                <input type="text" id="textInput" placeholder="Ou tapez votre question ici..." 
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <button id="sendTextBtn" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-2">
+                <i class="fas fa-info-circle mr-2"></i>
+                Instructions d'utilisation
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-blue-800">
+                <div>
+                    <strong>🎤 Parole :</strong>
+                    <br>Cliquez sur le bouton microphone ou appuyez sur <strong>Espace</strong>
+                </div>
+                <div>
+                    <strong>🔊 Écoute :</strong>
+                    <br>Les réponses sont automatiquement lues à haute voix
+                </div>
+                <div>
+                    <strong>⏹️ Contrôle :</strong>
+                    <br>Appuyez sur <strong>Échap</strong> pour arrêter la lecture
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-bar mr-2"></i>
+                Statistiques de Session
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div id="conversationCount" class="text-2xl font-bold text-green-600">0</div>
+                    <div class="text-sm text-gray-500">Conversations</div>
+                </div>
+                <div class="text-center">
+                    <div id="geminiCount" class="text-2xl font-bold text-blue-600">0</div>
+                    <div class="text-sm text-gray-500">Réponses Gemini</div>
+                </div>
+                <div class="text-center">
+                    <div id="localCount" class="text-2xl font-bold text-purple-600">0</div>
+                    <div class="text-sm text-gray-500">Réponses Locales</div>
+                </div>
+                <div class="text-center">
+                    <div id="voiceTime" class="text-2xl font-bold text-orange-600">0s</div>
+                    <div class="text-sm text-gray-500">Temps Vocal</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Contrôles flottants -->
+    <div class="floating-controls">
+        <!-- Bouton microphone principal -->
+        <button id="voiceBtn" class="voice-button w-16 h-16 africa-gradient text-white rounded-full shadow-lg flex items-center justify-center mb-4">
+            <i class="fas fa-microphone text-xl"></i>
+        </button>
+        
+        <!-- Bouton d'arrêt -->
+        <button id="stopBtn" class="voice-button w-12 h-12 bg-red-500 text-white rounded-full shadow-lg flex items-center justify-center hidden">
+            <i class="fas fa-stop"></i>
+        </button>
+    </div>
+
+    <!-- Modal de connexion -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 africa-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-user text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Connexion Requise</h3>
+                <p class="text-gray-600 mb-6">Connectez-vous pour utiliser le chat vocal IA</p>
+                
+                <div class="space-y-4">
+                    <input type="text" id="userNameInput" placeholder="Votre nom" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <input type="email" id="userEmailInput" placeholder="Votre email (optionnel)" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <button id="loginBtn" class="w-full bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Commencer le Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/gemini-config.js"></script>
+    <script src="../js/voice-ai-interface.js"></script>
+
+    <script>
+        // Variables globales
+        let voiceInterface = null;
+        let currentUser = null;
+        let sessionStats = {
+            conversations: 0,
+            geminiResponses: 0,
+            localResponses: 0,
+            voiceTime: 0
+        };
+
+        // Éléments DOM
+        const loginModal = document.getElementById('loginModal');
+        const userNameInput = document.getElementById('userNameInput');
+        const userEmailInput = document.getElementById('userEmailInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const textInput = document.getElementById('textInput');
+        const sendTextBtn = document.getElementById('sendTextBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const connectionText = document.getElementById('connectionText');
+        const connectionBadge = document.getElementById('connectionBadge');
+        const geminiStatus = document.getElementById('geminiStatus');
+        const geminiText = document.getElementById('geminiText');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceText = document.getElementById('voiceText');
+        const userName = document.getElementById('userName');
+
+        // Initialisation
+        async function initializeApp() {
+            try {
+                console.log('🚀 Initialisation du chat vocal IA...');
+                
+                // Vérifier si l'utilisateur est connecté
+                const savedUser = localStorage.getItem('omni_current_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    startChat();
+                } else {
+                    showLoginModal();
+                }
+                
+            } catch (error) {
+                console.error('❌ Erreur d\'initialisation:', error);
+            }
+        }
+
+        // Afficher le modal de connexion
+        function showLoginModal() {
+            loginModal.classList.remove('hidden');
+        }
+
+        // Masquer le modal de connexion
+        function hideLoginModal() {
+            loginModal.classList.add('hidden');
+        }
+
+        // Démarrer le chat
+        async function startChat() {
+            try {
+                // Mettre à jour l'interface utilisateur
+                userName.textContent = currentUser.name;
+                
+                // Masquer le modal
+                hideLoginModal();
+                
+                // Attendre l'initialisation de l'interface vocale
+                await new Promise(resolve => {
+                    const checkVoiceInterface = () => {
+                        if (window.voiceAIInterface) {
+                            resolve();
+                        } else {
+                            setTimeout(checkVoiceInterface, 100);
+                        }
+                    };
+                    checkVoiceInterface();
+                });
+                
+                voiceInterface = window.voiceAIInterface;
+                voiceInterface.setCurrentUser(currentUser);
+                
+                // Configurer les événements
+                setupEventListeners();
+                
+                // Mettre à jour les statuts
+                updateStatusIndicators();
+                
+                console.log('✅ Chat vocal démarré');
+                
+            } catch (error) {
+                console.error('❌ Erreur de démarrage du chat:', error);
+            }
+        }
+
+        // Configurer les événements
+        function setupEventListeners() {
+            // Connexion
+            loginBtn.addEventListener('click', () => {
+                const name = userNameInput.value.trim();
+                const email = userEmailInput.value.trim();
+                
+                if (name) {
+                    currentUser = { name, email };
+                    localStorage.setItem('omni_current_user', JSON.stringify(currentUser));
+                    startChat();
+                } else {
+                    alert('Veuillez entrer votre nom');
+                }
+            });
+
+            // Bouton vocal
+            voiceBtn.addEventListener('click', () => {
+                if (voiceInterface) {
+                    voiceInterface.toggleListening();
+                }
+            });
+
+            // Bouton d'arrêt
+            stopBtn.addEventListener('click', () => {
+                if (voiceInterface) {
+                    voiceInterface.stopSpeaking();
+                }
+            });
+
+            // Envoi texte
+            sendTextBtn.addEventListener('click', () => {
+                const text = textInput.value.trim();
+                if (text && voiceInterface) {
+                    voiceInterface.handleVoiceInput(text);
+                    textInput.value = '';
+                }
+            });
+
+            // Entrée clavier
+            textInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendTextBtn.click();
+                }
+            });
+
+            // Événements clavier globaux
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    if (voiceInterface) {
+                        voiceInterface.toggleListening();
+                    }
+                }
+                
+                if (e.code === 'Escape') {
+                    if (voiceInterface) {
+                        voiceInterface.stopSpeaking();
+                    }
+                }
+            });
+        }
+
+        // Mettre à jour les indicateurs de statut
+        function updateStatusIndicators() {
+            // Statut de connexion
+            if (navigator.onLine) {
+                connectionStatus.className = 'status-indicator w-3 h-3 rounded-full online';
+                connectionText.textContent = 'Connecté';
+                connectionBadge.innerHTML = '<i class="fas fa-wifi mr-1"></i>En Ligne';
+                connectionBadge.className = 'connection-badge';
+            } else {
+                connectionStatus.className = 'status-indicator w-3 h-3 rounded-full offline';
+                connectionText.textContent = 'Hors ligne';
+                connectionBadge.innerHTML = '<i class="fas fa-wifi mr-1"></i>Hors Ligne';
+                connectionBadge.className = 'connection-badge offline';
+            }
+
+            // Statut Gemini
+            if (voiceInterface && voiceInterface.geminiAPI && voiceInterface.geminiAPI.isConnected()) {
+                geminiStatus.className = 'status-indicator w-3 h-3 rounded-full online';
+                geminiText.textContent = 'Gemini Connecté';
+            } else {
+                geminiStatus.className = 'status-indicator w-3 h-3 rounded-full offline';
+                geminiText.textContent = 'Gemini Hors ligne';
+            }
+
+            // Statut vocal
+            if (voiceInterface && voiceInterface.recognition) {
+                voiceStatus.className = 'status-indicator w-3 h-3 rounded-full online';
+                voiceText.textContent = 'Microphone Actif';
+            } else {
+                voiceStatus.className = 'status-indicator w-3 h-3 rounded-full offline';
+                voiceText.textContent = 'Microphone';
+            }
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            if (voiceInterface) {
+                const stats = voiceInterface.getStats();
+                sessionStats.conversations = stats.conversations;
+                
+                document.getElementById('conversationCount').textContent = sessionStats.conversations;
+                document.getElementById('geminiCount').textContent = sessionStats.geminiResponses;
+                document.getElementById('localCount').textContent = sessionStats.localResponses;
+                document.getElementById('voiceTime').textContent = sessionStats.voiceTime + 's';
+            }
+        }
+
+        // Mettre à jour les indicateurs toutes les 2 secondes
+        setInterval(updateStatusIndicators, 2000);
+        setInterval(updateStats, 1000);
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+    </script>
+</body>
+</html> 

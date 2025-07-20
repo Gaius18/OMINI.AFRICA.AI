@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGI_ELP - Assistant Général d'Intelligence | OMNI.AFRICA.AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OMNI.AFRICA.AI Theme -->
+    <link rel="stylesheet" href="../assets/css/omni-theme.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Variables CSS personnalisées pour AGI_ELP */
+        :root {
+            --agi-primary: #667eea;
+            --agi-secondary: #764ba2;
+            --agi-accent: #f093fb;
+            --agi-success: #4facfe;
+            --agi-warning: #43e97b;
+            --agi-danger: #fa709a;
+            --agi-dark: #2d3748;
+            --agi-light: #f7fafc;
+        }
+
+        /* Styles personnalisés AGI_ELP */
+        .agi-gradient {
+            background: linear-gradient(135deg, var(--agi-primary) 0%, var(--agi-secondary) 50%, var(--agi-accent) 100%);
+        }
+
+        .agi-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .agi-floating {
+            animation: agiFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes agiFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(2deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+            75% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        .agi-pulse {
+            animation: agiPulse 2s infinite;
+        }
+
+        @keyframes agiPulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        .agi-typing {
+            overflow: hidden;
+            border-right: 2px solid var(--agi-primary);
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--agi-primary); }
+        }
+
+        .agi-neural {
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(240, 147, 251, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(79, 172, 254, 0.3) 0%, transparent 50%);
+            animation: neuralShift 15s ease-in-out infinite;
+        }
+
+        @keyframes neuralShift {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .agi-context-menu {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .agi-process-card {
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agi-process-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .agi-process-card:hover::before {
+            left: 100%;
+        }
+
+        .agi-process-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .agi-language-badge {
+            background: linear-gradient(135deg, var(--agi-success) 0%, var(--agi-warning) 100%);
+            animation: languageGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes languageGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(79, 172, 254, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(79, 172, 254, 0.8); }
+        }
+
+        .agi-brain-waves {
+            position: relative;
+        }
+
+        .agi-brain-waves::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--agi-primary), transparent);
+            animation: brainWave 2s ease-in-out infinite;
+        }
+
+        @keyframes brainWave {
+            0%, 100% { transform: scaleX(0); opacity: 0; }
+            50% { transform: scaleX(1); opacity: 1; }
+        }
+
+        .agi-voice-wave {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .agi-voice-wave span {
+            width: 3px;
+            background: var(--agi-primary);
+            border-radius: 2px;
+            animation: voiceWave 1.5s ease-in-out infinite;
+        }
+
+        .agi-voice-wave span:nth-child(1) { animation-delay: 0s; }
+        .agi-voice-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .agi-voice-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .agi-voice-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .agi-voice-wave span:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes voiceWave {
+            0%, 100% { height: 10px; }
+            50% { height: 25px; }
+        }
+
+        .agi-loading-dots {
+            display: inline-block;
+        }
+
+        .agi-loading-dots::after {
+            content: '';
+            animation: agiDots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes agiDots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .agi-chat-bubble {
+            max-width: 85%;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .agi-user-bubble {
+            background: linear-gradient(135deg, var(--agi-primary) 0%, var(--agi-secondary) 100%);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        .agi-ai-bubble {
+            background: white;
+            color: var(--agi-dark);
+            border-radius: 20px 20px 20px 5px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .agi-ai-bubble::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .agi-ai-bubble::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #e2e8f0;
+        }
+
+        .agi-context-chip {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agi-context-chip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .agi-context-chip:hover::before {
+            left: 100%;
+        }
+
+        .agi-context-chip:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .agi-process-indicator {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agi-process-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: processShine 2s infinite;
+        }
+
+        @keyframes processShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 font-['Inter'] min-h-screen">
+    <!-- Header AGI_ELP -->
+    <header class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo AGI_ELP -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 agi-gradient rounded-xl flex items-center justify-center agi-floating">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-agi-primary to-agi-secondary bg-clip-text text-transparent">
+                            AGI_ELP
+                        </h1>
+                        <p class="text-sm text-gray-600">Assistant Général d'Intelligence - Expert en Langues et Processus</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-gray-700 hover:text-agi-primary transition-colors">Accueil</a>
+                    <a href="#" class="text-gray-700 hover:text-agi-primary transition-colors">Langues</a>
+                    <a href="#" class="text-gray-700 hover:text-agi-primary transition-colors">Processus</a>
+                    <a href="#" class="text-gray-700 hover:text-agi-primary transition-colors">Analytics</a>
+                </nav>
+
+                <!-- Indicateur de statut -->
+                <div class="flex items-center space-x-3">
+                    <div class="agi-pulse w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">AGI Actif</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Section d'accueil -->
+        <div id="welcomeSection" class="text-center mb-12">
+            <div class="agi-neural rounded-2xl p-8 mb-8">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4 agi-typing">
+                    Assistant Général d'Intelligence
+                </h2>
+                <p class="text-xl text-gray-700 mb-6">
+                    Expert en Langues et Processus pour l'Afrique
+                </p>
+                <div class="agi-brain-waves h-1 bg-gradient-to-r from-transparent via-agi-primary to-transparent mb-6"></div>
+                <p class="text-lg text-gray-600">
+                    Traitement multilingue, analyse de processus et optimisation intelligente
+                </p>
+            </div>
+
+            <!-- Boutons d'action principaux -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <button onclick="startVoiceInteraction()" class="agi-process-card agi-gradient text-white p-6 rounded-xl shadow-lg">
+                    <i class="fas fa-microphone text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Interaction Vocale</h3>
+                    <p class="text-sm opacity-90">Parlez dans votre langue locale</p>
+                </button>
+
+                <button onclick="startProcessAnalysis()" class="agi-process-card bg-white text-gray-800 p-6 rounded-xl shadow-lg border border-gray-200">
+                    <i class="fas fa-cogs text-3xl mb-4 text-agi-primary"></i>
+                    <h3 class="text-xl font-semibold mb-2">Analyse de Processus</h3>
+                    <p class="text-sm text-gray-600">Optimisation intelligente</p>
+                </button>
+
+                <button onclick="startLanguageTranslation()" class="agi-process-card bg-white text-gray-800 p-6 rounded-xl shadow-lg border border-gray-200">
+                    <i class="fas fa-language text-3xl mb-4 text-agi-secondary"></i>
+                    <h3 class="text-xl font-semibold mb-2">Traduction Multilingue</h3>
+                    <p class="text-sm text-gray-600">Support 50+ langues africaines</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Interface de conversation AGI -->
+        <div id="agiConversation" class="hidden">
+            <!-- Zone de chat -->
+            <div class="agi-card rounded-2xl shadow-xl p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Conversation AGI_ELP</h3>
+                    <div class="agi-voice-wave" id="voiceIndicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div id="agiChatMessages" class="space-y-6 max-h-96 overflow-y-auto mb-6 p-4 bg-gray-50 rounded-lg">
+                    <!-- Messages de conversation -->
+                </div>
+
+                <!-- Zone de saisie -->
+                <div class="flex space-x-4">
+                    <input type="text" id="agiTextInput" placeholder="Posez votre question en français ou dans votre langue locale..." 
+                           class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-agi-primary focus:border-transparent">
+                    <button id="agiSendBtn" class="agi-gradient text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bouton microphone flottant -->
+            <div class="fixed bottom-8 right-8">
+                <button id="agiVoiceBtn" class="agi-pulse w-16 h-16 agi-gradient text-white rounded-full shadow-xl flex items-center justify-center">
+                    <i class="fas fa-microphone text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Menus contextuels AGI -->
+            <div id="agiContextMenus" class="mt-8">
+                <!-- Menus contextuels dynamiques -->
+            </div>
+        </div>
+
+        <!-- Section des processus -->
+        <div id="processSection" class="hidden">
+            <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">Analyse de Processus</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Processus en cours -->
+                <div class="agi-card rounded-xl p-6">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">Processus Actifs</h4>
+                    <div id="activeProcesses" class="space-y-4">
+                        <!-- Processus dynamiques -->
+                    </div>
+                </div>
+
+                <!-- Optimisations suggérées -->
+                <div class="agi-card rounded-xl p-6">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">Optimisations Suggérées</h4>
+                    <div id="optimizations" class="space-y-4">
+                        <!-- Optimisations dynamiques -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section des langues -->
+        <div id="languageSection" class="hidden">
+            <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">Support Multilingue</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+                <!-- Badges de langues -->
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇫🇷</div>
+                    <div class="text-sm font-medium">Français</div>
+                </div>
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇨🇮</div>
+                    <div class="text-sm font-medium">Dioula</div>
+                </div>
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇨🇮</div>
+                    <div class="text-sm font-medium">Baoulé</div>
+                </div>
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇨🇮</div>
+                    <div class="text-sm font-medium">Bété</div>
+                </div>
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇲🇱</div>
+                    <div class="text-sm font-medium">Bambara</div>
+                </div>
+                <div class="agi-language-badge text-white text-center py-3 px-4 rounded-lg">
+                    <div class="text-lg mb-1">🇸🇳</div>
+                    <div class="text-sm font-medium">Wolof</div>
+                </div>
+            </div>
+
+            <!-- Zone de traduction -->
+            <div class="agi-card rounded-xl p-6">
+                <h4 class="text-xl font-semibold text-gray-900 mb-4">Traduction en Temps Réel</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texte source</label>
+                        <textarea id="sourceText" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agi-primary focus:border-transparent" placeholder="Entrez le texte à traduire..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Traduction</label>
+                        <textarea id="translatedText" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50" placeholder="Traduction..." readonly></textarea>
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <select id="sourceLanguage" class="px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="fr">Français</option>
+                        <option value="dioula">Dioula</option>
+                        <option value="baoule">Baoulé</option>
+                        <option value="bete">Bété</option>
+                    </select>
+                    <button onclick="translateText()" class="agi-gradient text-white px-6 py-2 rounded-lg">
+                        <i class="fas fa-exchange-alt mr-2"></i>Traduire
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Analytics -->
+        <div id="analyticsSection" class="hidden">
+            <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">Analytics AGI_ELP</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="agi-card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-agi-primary mb-2">1,247</div>
+                    <div class="text-gray-600">Interactions Traitées</div>
+                </div>
+                <div class="agi-card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-agi-secondary mb-2">15</div>
+                    <div class="text-gray-600">Langues Supportées</div>
+                </div>
+                <div class="agi-card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-agi-accent mb-2">94.2%</div>
+                    <div class="text-gray-600">Précision AGI</div>
+                </div>
+            </div>
+
+            <!-- Graphiques et visualisations -->
+            <div class="agi-card rounded-xl p-6">
+                <h4 class="text-xl font-semibold text-gray-900 mb-4">Performance AGI</h4>
+                <div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p class="text-gray-500">Graphiques de performance en cours de développement...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de chargement -->
+    <div id="agiLoadingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="agi-card rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 agi-gradient rounded-full mx-auto mb-4 flex items-center justify-center agi-pulse">
+                    <i class="fas fa-brain text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Initialisation AGI_ELP</h3>
+                <p class="text-gray-600 mb-6">Chargement des modèles d'intelligence artificielle...</p>
+                <div class="agi-loading-dots text-agi-primary text-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration AGI_ELP
+        let agiRecognition = null;
+        let isAgiListening = false;
+        let currentSection = 'welcome';
+
+        // Éléments DOM
+        const welcomeSection = document.getElementById('welcomeSection');
+        const agiConversation = document.getElementById('agiConversation');
+        const processSection = document.getElementById('processSection');
+        const languageSection = document.getElementById('languageSection');
+        const analyticsSection = document.getElementById('analyticsSection');
+        const agiChatMessages = document.getElementById('agiChatMessages');
+        const agiTextInput = document.getElementById('agiTextInput');
+        const agiSendBtn = document.getElementById('agiSendBtn');
+        const agiVoiceBtn = document.getElementById('agiVoiceBtn');
+        const agiContextMenus = document.getElementById('agiContextMenus');
+        const agiLoadingModal = document.getElementById('agiLoadingModal');
+
+        // Initialisation AGI_ELP
+        function initializeAGI() {
+            console.log('🚀 Initialisation AGI_ELP...');
+            
+            // Initialiser la reconnaissance vocale
+            initializeAGISpeechRecognition();
+            
+            // Masquer le modal de chargement
+            setTimeout(() => {
+                agiLoadingModal.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Initialiser la reconnaissance vocale AGI
+        function initializeAGISpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                agiRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                agiRecognition.continuous = false;
+                agiRecognition.interimResults = false;
+                agiRecognition.lang = 'fr-FR';
+
+                agiRecognition.onstart = () => {
+                    isAgiListening = true;
+                    agiVoiceBtn.classList.add('agi-pulse');
+                    agiVoiceBtn.innerHTML = '<i class="fas fa-stop text-xl"></i>';
+                    showVoiceIndicator(true);
+                };
+
+                agiRecognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    handleAGIInput(transcript);
+                };
+
+                agiRecognition.onerror = (event) => {
+                    console.error('Erreur reconnaissance vocale AGI:', event.error);
+                    isAgiListening = false;
+                    agiVoiceBtn.classList.remove('agi-pulse');
+                    agiVoiceBtn.innerHTML = '<i class="fas fa-microphone text-xl"></i>';
+                    showVoiceIndicator(false);
+                };
+
+                agiRecognition.onend = () => {
+                    isAgiListening = false;
+                    agiVoiceBtn.classList.remove('agi-pulse');
+                    agiVoiceBtn.innerHTML = '<i class="fas fa-microphone text-xl"></i>';
+                    showVoiceIndicator(false);
+                };
+            } else {
+                console.warn('Reconnaissance vocale non supportée pour AGI_ELP');
+            }
+        }
+
+        // Afficher/masquer l'indicateur vocal
+        function showVoiceIndicator(show) {
+            const indicator = document.getElementById('voiceIndicator');
+            if (show) {
+                indicator.style.display = 'flex';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        // Gérer l'entrée AGI
+        async function handleAGIInput(input) {
+            addAGIMessage(input, 'user');
+            
+            // Simuler le traitement AGI
+            addAGIMessage('Traitement en cours...', 'ai', true);
+            
+            const response = await processAGIResponse(input);
+            
+            removeLastAGIMessage();
+            addAGIMessage(response.text, 'ai');
+            
+            if (response.contextMenus) {
+                showAGIContextMenus(response.contextMenus);
+            }
+        }
+
+        // Traitement de réponse AGI
+        async function processAGIResponse(userInput) {
+            const input = userInput.toLowerCase();
+            let response = { text: '', contextMenus: [] };
+
+            // Logique AGI avancée
+            if (input.includes('processus') || input.includes('process')) {
+                response.text = "🔧 **Analyse de Processus AGI_ELP**\n\n";
+                response.text += "J'ai détecté votre intérêt pour l'optimisation de processus. Voici mes capacités :\n\n";
+                response.text += "• **Analyse automatique** des workflows existants\n";
+                response.text += "• **Identification** des goulots d'étranglement\n";
+                response.text += "• **Suggestions d'optimisation** basées sur l'IA\n";
+                response.text += "• **Modélisation prédictive** des améliorations\n\n";
+                response.text += "Souhaitez-vous analyser un processus spécifique ?";
+                
+                response.contextMenus = [
+                    { text: 'Analyser un processus', action: 'analyze_process' },
+                    { text: 'Voir les optimisations', action: 'show_optimizations' },
+                    { text: 'Modélisation prédictive', action: 'predictive_modeling' }
+                ];
+            } else if (input.includes('langue') || input.includes('traduction') || input.includes('translate')) {
+                response.text = "🌍 **Support Multilingue AGI_ELP**\n\n";
+                response.text += "Je supporte plus de 50 langues africaines :\n\n";
+                response.text += "• **Langues principales** : Français, Anglais, Arabe\n";
+                response.text += "• **Langues locales** : Dioula, Baoulé, Bété, Bambara, Wolof\n";
+                response.text += "• **Traduction en temps réel** avec contexte culturel\n";
+                response.text += "• **Reconnaissance vocale** multilingue\n\n";
+                response.text += "Dans quelle langue souhaitez-vous interagir ?";
+                
+                response.contextMenus = [
+                    { text: 'Traduire un texte', action: 'translate_text' },
+                    { text: 'Changer de langue', action: 'change_language' },
+                    { text: 'Langues supportées', action: 'supported_languages' }
+                ];
+            } else if (input.includes('analytics') || input.includes('statistiques') || input.includes('performance')) {
+                response.text = "📊 **Analytics AGI_ELP**\n\n";
+                response.text += "Voici mes performances actuelles :\n\n";
+                response.text += "• **1,247 interactions** traitées aujourd'hui\n";
+                response.text += "• **15 langues** supportées activement\n";
+                response.text += "• **94.2% de précision** dans les réponses\n";
+                response.text += "• **Temps de réponse moyen** : 0.8 secondes\n\n";
+                response.text += "Que souhaitez-vous analyser ?";
+                
+                response.contextMenus = [
+                    { text: 'Voir les graphiques', action: 'show_charts' },
+                    { text: 'Performance détaillée', action: 'detailed_performance' },
+                    { text: 'Tendances', action: 'trends' }
+                ];
+            } else {
+                response.text = "🧠 **Assistant Général d'Intelligence AGI_ELP**\n\n";
+                response.text += "Bonjour ! Je suis votre assistant IA avancé spécialisé dans :\n\n";
+                response.text += "🔧 **Analyse de Processus** : Optimisation intelligente\n";
+                response.text += "🌍 **Support Multilingue** : 50+ langues africaines\n";
+                response.text += "📊 **Analytics Avancées** : Insights prédictifs\n";
+                response.text += "🎯 **Personnalisation** : Adaptation contextuelle\n\n";
+                response.text += "Comment puis-je vous aider aujourd'hui ?";
+                
+                response.contextMenus = [
+                    { text: 'Analyser un processus', action: 'analyze_process' },
+                    { text: 'Traduire un texte', action: 'translate_text' },
+                    { text: 'Voir les analytics', action: 'show_analytics' },
+                    { text: 'Capacités AGI', action: 'agi_capabilities' }
+                ];
+            }
+
+            return response;
+        }
+
+        // Ajouter un message AGI
+        function addAGIMessage(text, sender, isThinking = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-6`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `agi-chat-bubble ${sender === 'user' ? 'agi-user-bubble' : 'agi-ai-bubble'} p-4`;
+            
+            if (isThinking) {
+                bubble.innerHTML = `<span class="agi-loading-dots">Traitement AGI</span>`;
+            } else {
+                bubble.innerHTML = text.replace(/\n/g, '<br>');
+            }
+            
+            messageDiv.appendChild(bubble);
+            agiChatMessages.appendChild(messageDiv);
+            agiChatMessages.scrollTop = agiChatMessages.scrollHeight;
+        }
+
+        // Supprimer le dernier message AGI
+        function removeLastAGIMessage() {
+            const messages = agiChatMessages.children;
+            if (messages.length > 0) {
+                agiChatMessages.removeChild(messages[messages.length - 1]);
+            }
+        }
+
+        // Afficher les menus contextuels AGI
+        function showAGIContextMenus(menus) {
+            agiContextMenus.innerHTML = '';
+            
+            const menuContainer = document.createElement('div');
+            menuContainer.className = 'flex flex-wrap gap-3';
+            
+            menus.forEach(menu => {
+                const chip = document.createElement('button');
+                chip.className = 'agi-context-chip agi-gradient text-white px-4 py-2 rounded-full text-sm font-medium';
+                chip.textContent = menu.text;
+                chip.onclick = () => handleAGIContextMenu(menu);
+                menuContainer.appendChild(chip);
+            });
+            
+            agiContextMenus.appendChild(menuContainer);
+        }
+
+        // Gérer les menus contextuels AGI
+        async function handleAGIContextMenu(menu) {
+            switch(menu.action) {
+                case 'analyze_process':
+                    showSection('process');
+                    addAGIMessage("🔧 **Analyse de Processus**\n\nJ'ai activé le module d'analyse de processus. Décrivez le processus que vous souhaitez optimiser.", 'ai');
+                    break;
+                case 'translate_text':
+                    showSection('language');
+                    addAGIMessage("🌍 **Module de Traduction**\n\nJ'ai activé le module de traduction multilingue. Entrez le texte à traduire.", 'ai');
+                    break;
+                case 'show_analytics':
+                    showSection('analytics');
+                    addAGIMessage("📊 **Analytics AGI_ELP**\n\nJ'ai activé le module d'analytics. Voici vos données de performance.", 'ai');
+                    break;
+                default:
+                    addAGIMessage(`Fonctionnalité ${menu.action} en cours de développement...`, 'ai');
+            }
+        }
+
+        // Afficher une section
+        function showSection(section) {
+            // Masquer toutes les sections
+            welcomeSection.classList.add('hidden');
+            agiConversation.classList.add('hidden');
+            processSection.classList.add('hidden');
+            languageSection.classList.add('hidden');
+            analyticsSection.classList.add('hidden');
+
+            // Afficher la section demandée
+            switch(section) {
+                case 'conversation':
+                    agiConversation.classList.remove('hidden');
+                    break;
+                case 'process':
+                    processSection.classList.remove('hidden');
+                    break;
+                case 'language':
+                    languageSection.classList.remove('hidden');
+                    break;
+                case 'analytics':
+                    analyticsSection.classList.remove('hidden');
+                    break;
+                default:
+                    welcomeSection.classList.remove('hidden');
+            }
+
+            currentSection = section;
+        }
+
+        // Fonctions d'action principales
+        function startVoiceInteraction() {
+            showSection('conversation');
+            addAGIMessage("🎤 **Interaction Vocale AGI_ELP**\n\nJe suis prêt à écouter. Parlez dans votre langue préférée !", 'ai');
+        }
+
+        function startProcessAnalysis() {
+            showSection('process');
+            addAGIMessage("🔧 **Analyse de Processus**\n\nDécrivez le processus que vous souhaitez analyser et optimiser.", 'ai');
+        }
+
+        function startLanguageTranslation() {
+            showSection('language');
+            addAGIMessage("🌍 **Traduction Multilingue**\n\nEntrez le texte à traduire et sélectionnez la langue cible.", 'ai');
+        }
+
+        function translateText() {
+            const sourceText = document.getElementById('sourceText').value;
+            const sourceLang = document.getElementById('sourceLanguage').value;
+            
+            if (sourceText.trim()) {
+                // Simulation de traduction
+                const translatedText = `[Traduction de "${sourceText}" depuis ${sourceLang}]`;
+                document.getElementById('translatedText').value = translatedText;
+                
+                addAGIMessage(`✅ **Traduction effectuée**\n\nTexte traduit avec succès depuis ${sourceLang}.`, 'ai');
+            }
+        }
+
+        // Événements
+        agiVoiceBtn.addEventListener('click', () => {
+            if (isAgiListening) {
+                agiRecognition.stop();
+            } else {
+                agiRecognition.start();
+            }
+        });
+
+        agiSendBtn.addEventListener('click', () => {
+            const text = agiTextInput.value.trim();
+            if (text) {
+                handleAGIInput(text);
+                agiTextInput.value = '';
+            }
+        });
+
+        agiTextInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                agiSendBtn.click();
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAGI();
+        });
+    </script>
+</body>
+</html> 
